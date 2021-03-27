@@ -35,14 +35,13 @@ class Nettigo:
             _LOGGER.debug("Data retrieved from %s, status: %s", self._host, resp.status)
             return await resp.json() if use_json else await resp.text()
 
-    async def async_update(self) -> dict:
+    async def async_update(self) -> Union[dict, str]:
         """Retreive data from the device."""
         url = self._construct_url(ATTR_DATA, host=self._host)
-        data = await self._async_get_data(url)
 
-        return data
+        return await self._async_get_data(url)
 
-    async def async_get_mac_address(self) -> str:
+    async def async_get_mac_address(self):
         """Retreive the device MAC address."""
         url = self._construct_url(ATTR_VALUES, host=self._host)
         data = await self._async_get_data(url, use_json=False)
