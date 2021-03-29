@@ -39,7 +39,13 @@ class Nettigo:
         """Retreive data from the device."""
         url = self._construct_url(ATTR_DATA, host=self._host)
 
-        return await self._async_get_data(url)
+        data = await self._async_get_data(url)
+
+        data["sensordatavalues"] = {
+            item["value_type"]: item["value"] for item in data["sensordatavalues"]
+        }
+
+        return data
 
     async def async_get_mac_address(self):
         """Retreive the device MAC address."""
