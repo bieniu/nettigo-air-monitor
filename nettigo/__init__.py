@@ -42,7 +42,7 @@ class Nettigo:
         data = await self._async_get_data(url)
 
         data["sensordatavalues"] = {
-            item["value_type"]: item["value"] for item in data["sensordatavalues"]
+            item["value_type"]: float(item["value"]) for item in data["sensordatavalues"]
         }
 
         return data
