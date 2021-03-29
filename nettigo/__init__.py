@@ -25,7 +25,7 @@ class Nettigo:
         """Construct Nettigo URL."""
         return ENDPOINTS[arg].format(**kwargs)
 
-    async def _async_get_data(self, url: str, use_json=True) -> Union[dict, str]:
+    async def _async_get_data(self, url: str, use_json=True):
         """Retreive data from the device."""
         async with self._session.get(url) as resp:
             if resp.status != HTTP_OK:
