@@ -1,5 +1,6 @@
 """Constants for Nettigo library."""
 ATTR_DATA = "data"
+ATTR_SENSOR_VALUES = "sensordatavalues"
 ATTR_VALUES = "values"
 
 HTTP_OK = 200

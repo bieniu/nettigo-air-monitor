@@ -7,7 +7,14 @@ from typing import Optional, Union
 
 from aiohttp import ClientSession
 
-from .const import ATTR_DATA, ATTR_VALUES, ENDPOINTS, HTTP_OK, MAC_PATTERN
+from .const import (
+    ATTR_DATA,
+    ATTR_SENSOR_VALUES,
+    ATTR_VALUES,
+    ENDPOINTS,
+    HTTP_OK,
+    MAC_PATTERN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,6 +32,20 @@ class Nettigo:
         """Construct Nettigo URL."""
         return ENDPOINTS[arg].format(**kwargs)
 
+    @staticmethod
+    def _parse_sensor_data(data: dict) -> dict:
+        """Parse sensor data dict."""
+        return {
+            item["value_type"]: int(item["value"])
+            if item["value_type"] == "signal"
+            else (
+                round(float(item["value"]) / 100)
+                if item["value_type"] in ["BME280_pressure", "BMP280_pressure"]
+                else round(float(item["value"]), 1)
+            )
+            for item in data
+        }
+
     async def _async_get_data(self, url: str, use_json=True):
         """Retreive data from the device."""
         async with self._session.get(url) as resp:
@@ -41,12 +62,10 @@ class Nettigo:
 
         data = await self._async_get_data(url)
 
-        data["sensordatavalues"] = {
-            item["value_type"]: int(item["value"])
-            if item["value_type"] == "signal"
-            else round(float(item["value"]), 1)
-            for item in data["sensordatavalues"]
-        }
+        try:
+            data[ATTR_SENSOR_VALUES] = self._parse_sensor_data(data[ATTR_SENSOR_VALUES])
+        except (TypeError, TypeError) as err:
+            raise InvalidSensorData("Invalid sensor data") from err
 
         return data
 
@@ -73,6 +92,15 @@ class ApiError(Exception):
 
 class CannotGetMac(Exception):
     """Raised when cannot get device MAC address."""
+
+    def __init__(self, status: str):
+        """Initialize."""
+        super().__init__(status)
+        self.status = status
+
+
+class InvalidSensorData(Exception):
+    """Raised when sensor data is invalid."""
 
     def __init__(self, status: str):
         """Initialize."""

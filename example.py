@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from nettigo import Nettigo, ApiError
+from nettigo import Nettigo, ApiError, InvalidSensorData
 from aiohttp import ClientError, ClientSession
 
 HOST = "192.168.172.12"
@@ -18,7 +18,7 @@ async def main():
             mac = await nettigo.async_get_mac_address()
 
 
-        except (ApiError, ClientError) as error:
+        except (ApiError, ClientError, InvalidSensorData) as error:
             print(f"Error: {error}")
         else:
             print(f"MAC address: {mac}")
