@@ -7,13 +7,7 @@ from typing import Optional
 
 from aiohttp import ClientSession
 
-from .const import (
-    ATTR_DATA,
-    ATTR_VALUES,
-    ENDPOINTS,
-    HTTP_OK,
-    MAC_PATTERN,
-)
+from .const import ATTR_DATA, ATTR_VALUES, ENDPOINTS, HTTP_OK, MAC_PATTERN
 
 _LOGGER = logging.getLogger(__name__)
 
