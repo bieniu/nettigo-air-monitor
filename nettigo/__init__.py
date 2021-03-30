@@ -20,9 +20,6 @@ class DictToObj(dict):
             return self[name]
         return None
 
-    def __setitem__(self, key, item):
-        self[key] = item
-
 
 class Nettigo:
     """Main class to perform Nettigo requests"""
