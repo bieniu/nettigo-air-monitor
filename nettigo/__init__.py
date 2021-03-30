@@ -9,7 +9,6 @@ from aiohttp import ClientSession
 
 from .const import (
     ATTR_DATA,
-    ATTR_SENSOR_VALUES,
     ATTR_VALUES,
     ENDPOINTS,
     HTTP_OK,
@@ -75,12 +74,10 @@ class Nettigo:
 
         data = await self._async_get_data(url)
 
-        _LOGGER.debug(data)
-
         self._software_version = data["software_version"]
 
         try:
-            sensors = self._parse_sensor_data(data[ATTR_SENSOR_VALUES])
+            sensors = self._parse_sensor_data(data["sensordatavalues"])
         except (TypeError, TypeError) as err:
             raise InvalidSensorData("Invalid sensor data") from err
 
