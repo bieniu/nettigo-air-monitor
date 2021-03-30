@@ -3,7 +3,7 @@ Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 """
 import logging
 import re
-from typing import Optional, Union
+from typing import Optional
 
 from aiohttp import ClientSession
 
@@ -19,6 +19,18 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+class DictToObj(dict):
+    """Dictionary to object class."""
+
+    def __getattr__(self, name):
+        if name in self:
+            return self[name]
+        return None
+
+    def __setitem__(self, key, item):
+        self[key] = item
+
+
 class Nettigo:
     """Main class to perform Nettigo requests"""
 
@@ -26,6 +38,7 @@ class Nettigo:
         """Initialize."""
         self._session = session
         self._host = host
+        self._software_version = None
 
     @staticmethod
     def _construct_url(arg: str, **kwargs) -> str:
@@ -36,7 +49,7 @@ class Nettigo:
     def _parse_sensor_data(data: dict) -> dict:
         """Parse sensor data dict."""
         return {
-            item["value_type"]: int(item["value"])
+            item["value_type"].lower(): int(item["value"])
             if item["value_type"] == "signal"
             else (
                 round(float(item["value"]) / 100)
@@ -56,18 +69,22 @@ class Nettigo:
             _LOGGER.debug("Data retrieved from %s, status: %s", self._host, resp.status)
             return await resp.json() if use_json else await resp.text()
 
-    async def async_update(self) -> Union[dict, str]:
+    async def async_update(self) -> DictToObj:
         """Retreive data from the device."""
         url = self._construct_url(ATTR_DATA, host=self._host)
 
         data = await self._async_get_data(url)
 
+        _LOGGER.debug(data)
+
+        self._software_version = data["software_version"]
+
         try:
-            data[ATTR_SENSOR_VALUES] = self._parse_sensor_data(data[ATTR_SENSOR_VALUES])
+            sensors = self._parse_sensor_data(data[ATTR_SENSOR_VALUES])
         except (TypeError, TypeError) as err:
             raise InvalidSensorData("Invalid sensor data") from err
 
-        return data
+        return DictToObj(sensors)
 
     async def async_get_mac_address(self):
         """Retreive the device MAC address."""
@@ -79,6 +96,11 @@ class Nettigo:
             raise CannotGetMac("Cannot get MAC address from device")
 
         return mac[0]
+
+    @property
+    def software_version(self) -> Optional[str]:
+        """Return software version."""
+        return self._software_version
 
 
 class ApiError(Exception):
