@@ -5,7 +5,7 @@
 [![PayPal_Me][paypal-me-shield]][paypal-me]
 
 # nettigo
-Python wrapper for getting data from Nettigo Air Monitor device.
+Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 
 
 ## How to use package
