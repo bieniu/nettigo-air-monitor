@@ -1,13 +1,11 @@
 """Tests for nettigo package."""
 import json
-from datetime import date
-from unittest.mock import Mock, patch
 
 import aiohttp
 import pytest
 from aioresponses import aioresponses
 
-from nettigo import ApiError, InvalidSensorData, Nettigo
+from nettigo import ApiError, CannotGetMac, InvalidSensorData, Nettigo
 
 VALID_IP = "192.168.172.12"
 INVALID_HOST = "http://nettigo.org"
@@ -77,6 +75,7 @@ async def test_api_error():
 
     await session.close()
 
+
 @pytest.mark.asyncio
 async def test_invalid_sensor_data():
     """Test InvalidSensorData error."""
@@ -95,8 +94,26 @@ async def test_invalid_sensor_data():
         try:
             await nettigo.async_update()
         except InvalidSensorData as error:
-            assert (
-                str(error.status) == "Invalid sensor data"
-            )
+            assert str(error.status) == "Invalid sensor data"
+
+    await session.close()
+
+
+@pytest.mark.asyncio
+async def test_cannot_get_mac():
+    """Test CannotGetMac error."""
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/values",
+            payload="lorem ipsum",
+        )
+        nettigo = Nettigo(session, VALID_IP)
+
+        try:
+            await nettigo.async_get_mac_address()
+        except CannotGetMac as error:
+            assert str(error.status) == "Cannot get MAC address from device"
 
     await session.close()
