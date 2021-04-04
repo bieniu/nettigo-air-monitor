@@ -50,7 +50,10 @@ async def test_valid_data():
     assert result.heca_temperature == 15.1
     assert result.heca_humidity == 59.7
     assert result.signal == -85
-    assert result.test is None
+    try:
+        result.unknown
+    except AttributeError as error:
+        assert str(error) == "No such attribute: unknown"
 
 
 @pytest.mark.asyncio

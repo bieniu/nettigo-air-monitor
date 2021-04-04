@@ -18,7 +18,7 @@ class DictToObj(dict):
     def __getattr__(self, name):
         if name in self:
             return self[name]
-        return None
+        raise AttributeError("No such attribute: " + name)
 
 
 class Nettigo:
