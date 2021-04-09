@@ -5,8 +5,8 @@ import asyncio
 import logging
 import re
 from typing import Optional
-import async_timeout
 
+import async_timeout
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
 
