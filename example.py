@@ -20,10 +20,10 @@ async def main():
             mac = await nettigo.async_get_mac_address()
 
     except (
+        asyncio.exceptions.TimeoutError,
         ApiError,
         ClientError,
         InvalidSensorData,
-        asyncio.TimeoutError,
     ) as error:
         print(f"Error: {error}")
     else:

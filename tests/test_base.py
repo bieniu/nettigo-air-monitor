@@ -1,4 +1,5 @@
 """Tests for nettigo package."""
+import asyncio
 import json
 from unittest.mock import Mock
 
@@ -104,8 +105,8 @@ async def test_retry():
 
         try:
             await nettigo.async_update()
-        except ApiError as error:
-            assert "Cannot connect to host" in str(error.status)
+        except asyncio.exceptions.TimeoutError as error:
+            assert str(error) == ""
 
     await session.close()
 

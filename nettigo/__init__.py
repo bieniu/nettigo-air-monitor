@@ -5,6 +5,7 @@ import asyncio
 import logging
 import re
 from typing import Optional
+import async_timeout
 
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
@@ -51,31 +52,40 @@ class Nettigo:
             for item in data
         }
 
-    async def _async_get_data(self, url: str, retries=3, timeout=5, use_json=True):
+    async def _async_get_data(
+        self,
+        url: str,
+        retries: int = 3,
+        timeout: int = 5,
+        use_json: bool = True,
+    ):
         """Retreive data from the device."""
-        last_error = None
-        for retry in range(retries):
-            try:
-                resp = await self._session.get(url)
-            except ClientConnectorError as error:
-                _LOGGER.info(
-                    "Invalid response from device: %s, retry: %s", self._host, retry
-                )
-                last_error = error
-            else:
-                if resp.status != HTTP_OK:
-                    raise ApiError(
-                        f"Invalid response from device {self._host}: {resp.status}"
+        with async_timeout.timeout(retries * timeout):
+            last_error = None
+            for retry in range(retries):
+                try:
+                    resp = await self._session.get(url)
+                except ClientConnectorError as error:
+                    _LOGGER.info(
+                        "Invalid response from device: %s, retry: %s", self._host, retry
                     )
+                    last_error = error
+                else:
+                    _LOGGER.debug(
+                        "Data retrieved from %s, status: %s", self._host, resp.status
+                    )
+                    if resp.status != HTTP_OK:
+                        raise ApiError(
+                            f"Invalid response from device {self._host}: {resp.status}"
+                        )
 
-                _LOGGER.debug(
-                    "Data retrieved from %s, status: %s", self._host, resp.status
-                )
-                return await resp.json() if use_json else await resp.text()
-            _LOGGER.debug("Waiting %s seconds for device %s", timeout, self._host)
-            await asyncio.sleep(timeout)
+                    return await resp.json() if use_json else await resp.text()
 
-        raise ApiError(str(last_error))
+                wait = timeout + retry
+                _LOGGER.debug("Waiting %s seconds for device %s", wait, self._host)
+                await asyncio.sleep(wait)
+
+            raise ApiError(str(last_error))
 
     async def async_update(self) -> DictToObj:
         """Retreive data from the device."""
