@@ -72,9 +72,7 @@ class Nettigo:
                     "Data retrieved from %s, status: %s", self._host, resp.status
                 )
                 return await resp.json() if use_json else await resp.text()
-            _LOGGER.debug(
-                "Waiting %s seconds for device %s", timeout, self._host
-            )
+            _LOGGER.debug("Waiting %s seconds for device %s", timeout, self._host)
             await asyncio.sleep(timeout)
 
         raise ApiError(str(last_error))
