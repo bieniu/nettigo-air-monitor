@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="nettigo",
-    version="0.1.4",
+    version="0.2.0",
     author="Maciej Bieniek",
     author_email="maciej.bieniek@gmail.com",
     description="Python wrapper for getting air quality data from Nettigo Air Monitor devices.",
