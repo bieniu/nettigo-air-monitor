@@ -61,7 +61,6 @@ class Nettigo:
                 _LOGGER.info(
                     "Invalid response from device: %s, retry: %s", self._host, retry
                 )
-                _LOGGER.debug(last_error)
                 last_error = error
             else:
                 if resp.status != HTTP_OK:
