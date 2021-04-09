@@ -1,8 +1,10 @@
 """Tests for nettigo package."""
 import json
+from unittest.mock import Mock
 
 import aiohttp
 import pytest
+from aiohttp.client_exceptions import ClientConnectorError
 from aioresponses import aioresponses
 
 from nettigo import ApiError, CannotGetMac, InvalidSensorData, Nettigo
@@ -75,6 +77,35 @@ async def test_api_error():
             assert (
                 str(error.status) == "Invalid response from device 192.168.172.12: 404"
             )
+
+    await session.close()
+
+
+@pytest.mark.asyncio
+async def test_retry():
+    """Test retry request."""
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
+
+        nettigo = Nettigo(session, VALID_IP)
+
+        try:
+            await nettigo.async_update()
+        except ApiError as error:
+            assert "Cannot connect to host" in str(error.status)
 
     await session.close()
 
