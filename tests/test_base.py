@@ -1,5 +1,4 @@
 """Tests for nettigo package."""
-import asyncio
 import json
 from unittest.mock import Mock
 
