@@ -105,8 +105,8 @@ async def test_retry():
 
         try:
             await nettigo.async_update()
-        except asyncio.exceptions.TimeoutError as error:
-            assert str(error) == ""
+        except ApiError as error:
+            assert "Cannot connect to host" in str(error)
 
     await session.close()
 
