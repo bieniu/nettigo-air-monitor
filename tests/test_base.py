@@ -99,6 +99,10 @@ async def test_retry():
             "http://192.168.172.12/data.json",
             exception=ClientConnectorError(Mock(), Mock()),
         )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
 
         nettigo = Nettigo(session, VALID_IP)
 
