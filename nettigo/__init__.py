@@ -16,6 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 RETRIES = 4
 TIMEOUT = 5
 
+
 class DictToObj(dict):
     """Dictionary to object class."""
 
