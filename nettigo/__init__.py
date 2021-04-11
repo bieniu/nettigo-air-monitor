@@ -13,6 +13,8 @@ from .const import ATTR_DATA, ATTR_VALUES, ENDPOINTS, HTTP_OK, MAC_PATTERN
 
 _LOGGER = logging.getLogger(__name__)
 
+RETRIES = 4
+TIMEOUT = 5
 
 class DictToObj(dict):
     """Dictionary to object class."""
@@ -53,8 +55,6 @@ class Nettigo:
 
     async def _async_get_data(self, url: str, use_json: bool = True):
         """Retreive data from the device."""
-        RETRIES = 4
-        TIMEOUT = 5
         last_error = None
         for retry in range(RETRIES):
             try:
