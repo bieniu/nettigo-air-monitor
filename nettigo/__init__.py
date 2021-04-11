@@ -51,16 +51,12 @@ class Nettigo:
             for item in data
         }
 
-    async def _async_get_data(
-        self,
-        url: str,
-        retries: int = 4,
-        timeout: int = 5,
-        use_json: bool = True,
-    ):
+    async def _async_get_data(self, url: str, use_json: bool = True):
         """Retreive data from the device."""
+        RETRIES = 4
+        TIMEOUT = 5
         last_error = None
-        for retry in range(retries):
+        for retry in range(RETRIES):
             try:
                 resp = await self._session.get(url)
             except ClientConnectorError as error:
@@ -79,7 +75,7 @@ class Nettigo:
 
                 return await resp.json() if use_json else await resp.text()
 
-            wait = timeout + retry
+            wait = TIMEOUT + retry
             _LOGGER.debug("Waiting %s seconds for device %s", wait, self._host)
             await asyncio.sleep(wait)
 
