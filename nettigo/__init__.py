@@ -54,7 +54,7 @@ class Nettigo:
     async def _async_get_data(
         self,
         url: str,
-        retries: int = 3,
+        retries: int = 4,
         timeout: int = 5,
         use_json: bool = True,
     ):
