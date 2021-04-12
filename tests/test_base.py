@@ -7,7 +7,12 @@ import pytest
 from aiohttp.client_exceptions import ClientConnectorError
 from aioresponses import aioresponses
 
-from nettigo_air_monitor import ApiError, CannotGetMac, InvalidSensorData, NettigoAirMonitor
+from nettigo_air_monitor import (
+    ApiError,
+    CannotGetMac,
+    InvalidSensorData,
+    NettigoAirMonitor,
+)
 
 VALID_IP = "192.168.172.12"
 INVALID_HOST = "http://nam.org"
