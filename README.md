@@ -18,14 +18,14 @@ from aiohttp import ClientError, ClientSession
 
 from nettigo import ApiError, InvalidSensorData, Nettigo
 
-HOST = "dupa.blada"
+HOST = "192.168.172.12"
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 async def main():
     try:
-        async with ClientSession() as websession, async_timeout.timeout(20):
+        async with ClientSession() as websession, async_timeout.timeout(30):
             nettigo = Nettigo(websession, HOST)
             data = await nettigo.async_update()
 
@@ -46,9 +46,8 @@ async def main():
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main())
 loop.close()
-
-
 ```
+
 [releases]: https://github.com/bieniu/nettigo/releases
 [releases-shield]: https://img.shields.io/github/release/bieniu/nettigo.svg?style=popout
 [pypi-releases]: https://pypi.org/project/nettigo/

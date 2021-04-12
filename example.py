@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 async def main():
     try:
-        async with ClientSession() as websession, async_timeout.timeout(20):
+        async with ClientSession() as websession, async_timeout.timeout(30):
             nettigo = Nettigo(websession, HOST)
             data = await nettigo.async_update()
 
