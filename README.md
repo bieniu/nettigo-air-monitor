@@ -5,10 +5,12 @@
 [![PayPal_Me][paypal-me-shield]][paypal-me]
 
 # nettigo-air-monitor
+
 Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 
 
 ## How to use package
+
 ```python
 import asyncio
 import logging
