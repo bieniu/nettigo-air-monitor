@@ -26,8 +26,8 @@ class DictToObj(dict):
         raise AttributeError("No such attribute: " + name)
 
 
-class Nettigo:
-    """Main class to perform Nettigo requests"""
+class NettigoAirMonitor:
+    """Main class to perform Nettigo Air Monitor requests"""
 
     def __init__(self, session: ClientSession, host: Optional[str] = None):
         """Initialize."""
@@ -37,7 +37,7 @@ class Nettigo:
 
     @staticmethod
     def _construct_url(arg: str, **kwargs) -> str:
-        """Construct Nettigo URL."""
+        """Construct Nettigo Air Monitor URL."""
         return ENDPOINTS[arg].format(**kwargs)
 
     @staticmethod

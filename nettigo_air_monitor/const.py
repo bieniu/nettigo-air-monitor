@@ -1,4 +1,4 @@
-"""Constants for Nettigo library."""
+"""Constants for nettigo-air-monitor library."""
 ATTR_DATA = "data"
 ATTR_SENSOR_VALUES = "sensordatavalues"
 ATTR_VALUES = "values"

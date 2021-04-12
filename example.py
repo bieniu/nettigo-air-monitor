@@ -4,7 +4,7 @@ import logging
 import async_timeout
 from aiohttp import ClientError, ClientSession
 
-from nettigo import ApiError, InvalidSensorData, Nettigo
+from nettigo_air_monitor import ApiError, InvalidSensorData, NettigoAirMonitor
 
 HOST = "192.168.172.12"
 
@@ -14,10 +14,10 @@ logging.basicConfig(level=logging.DEBUG)
 async def main():
     try:
         async with ClientSession() as websession, async_timeout.timeout(30):
-            nettigo = Nettigo(websession, HOST)
-            data = await nettigo.async_update()
+            nam = NettigoAirMonitor(websession, HOST)
+            data = await nam.async_update()
 
-            mac = await nettigo.async_get_mac_address()
+            mac = await nam.async_get_mac_address()
 
     except (
         asyncio.exceptions.TimeoutError,

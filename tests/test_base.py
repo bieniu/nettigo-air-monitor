@@ -7,10 +7,10 @@ import pytest
 from aiohttp.client_exceptions import ClientConnectorError
 from aioresponses import aioresponses
 
-from nettigo import ApiError, CannotGetMac, InvalidSensorData, Nettigo
+from nettigo_air_monitor import ApiError, CannotGetMac, InvalidSensorData, NettigoAirMonitor
 
 VALID_IP = "192.168.172.12"
-INVALID_HOST = "http://nettigo.org"
+INVALID_HOST = "http://nam.org"
 
 VALUES = "MAC: AA:BB:CC:DD:EE:FF<br/>"
 
@@ -33,17 +33,17 @@ async def test_valid_data():
             payload=VALUES,
         )
 
-        nettigo = Nettigo(session, VALID_IP)
+        nam = NettigoAirMonitor(session, VALID_IP)
 
-        result = await nettigo.async_get_mac_address()
+        result = await nam.async_get_mac_address()
 
         assert result == "AA:BB:CC:DD:EE:FF"
 
-        result = await nettigo.async_update()
+        result = await nam.async_update()
 
     await session.close()
 
-    assert nettigo.software_version == "NAMF-2020-36"
+    assert nam.software_version == "NAMF-2020-36"
     assert result.sds_p1 == 22.7
     assert result.sds_p2 == 20.0
     assert result.bme280_temperature == 10.6
@@ -69,10 +69,10 @@ async def test_api_error():
             status=404,
         )
 
-        nettigo = Nettigo(session, VALID_IP)
+        nam = NettigoAirMonitor(session, VALID_IP)
 
         try:
-            await nettigo.async_update()
+            await nam.async_update()
         except ApiError as error:
             assert (
                 str(error.status) == "Invalid response from device 192.168.172.12: 404"
@@ -104,10 +104,10 @@ async def test_retry():
             exception=ClientConnectorError(Mock(), Mock()),
         )
 
-        nettigo = Nettigo(session, VALID_IP)
+        nam = NettigoAirMonitor(session, VALID_IP)
 
         try:
-            await nettigo.async_update()
+            await nam.async_update()
         except ApiError as error:
             assert "Cannot connect to host" in str(error)
 
@@ -127,10 +127,10 @@ async def test_invalid_sensor_data():
             "http://192.168.172.12/data.json",
             payload=data,
         )
-        nettigo = Nettigo(session, VALID_IP)
+        nam = NettigoAirMonitor(session, VALID_IP)
 
         try:
-            await nettigo.async_update()
+            await nam.async_update()
         except InvalidSensorData as error:
             assert str(error.status) == "Invalid sensor data"
 
@@ -147,10 +147,10 @@ async def test_cannot_get_mac():
             "http://192.168.172.12/values",
             payload="lorem ipsum",
         )
-        nettigo = Nettigo(session, VALID_IP)
+        nam = NettigoAirMonitor(session, VALID_IP)
 
         try:
-            await nettigo.async_get_mac_address()
+            await nam.async_get_mac_address()
         except CannotGetMac as error:
             assert str(error.status) == "Cannot get MAC address from device"
 

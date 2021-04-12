@@ -25,22 +25,22 @@ jobs:
     - name: Check with isort
       run: |
         pip install isort
-        isort nettigo tests --check-only
+        isort nettigo-air-monitor tests --check-only
     - name: Check with Black Code Formatter
       run: |
         pip install black
-        black nettigo tests --check
+        black nettigo-air-monitor tests --check
     - name: Lint with flake8
       run: |
         pip install flake8
-        flake8 nettigo tests
+        flake8 nettigo-air-monitor tests
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint nettigo tests
+        pylint nettigo-air-monitor tests
     - name: Test with mypy
       run: |
-        mypy nettigo
+        mypy nettigo-air-monitor
     - name: Test with pytest
       run: |
         python setup.py test
