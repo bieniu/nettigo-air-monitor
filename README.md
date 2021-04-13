@@ -50,12 +50,12 @@ loop.run_until_complete(main())
 loop.close()
 ```
 
-[releases]: https://github.com/bieniu/nettigo/releases
-[releases-shield]: https://img.shields.io/github/release/bieniu/nettigo.svg?style=popout
-[pypi-releases]: https://pypi.org/project/nettigo/
-[pypi-statistics]: https://pepy.tech/project/nettigo
-[pypi-releases-shield]: https://img.shields.io/pypi/v/nettigo
-[pypi-downloads]: https://pepy.tech/badge/nettigo/month
+[releases]: https://github.com/bieniu/nettigo-air-monitor/releases
+[releases-shield]: https://img.shields.io/github/release/bieniu/nettigo-air-monitor.svg?style=popout
+[pypi-releases]: https://pypi.org/project/nettigo-air-monitor/
+[pypi-statistics]: https://pepy.tech/project/nettigo-air-monitor
+[pypi-releases-shield]: https://img.shields.io/pypi/v/nettigo-air-monitor
+[pypi-downloads]: https://pepy.tech/badge/nettigo-air-monitor/month
 [buy-me-a-coffee-shield]: https://img.shields.io/static/v1.svg?label=%20&message=Buy%20me%20a%20coffee&color=6f4e37&logo=buy%20me%20a%20coffee&logoColor=white
 [buy-me-a-coffee]: https://www.buymeacoffee.com/QnLdxeaqO
 [paypal-me-shield]: https://img.shields.io/static/v1.svg?label=%20&message=PayPal.Me&logo=paypal
