@@ -4,7 +4,7 @@ Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 import asyncio
 import logging
 import re
-from typing import Optional
+from typing import Any, Optional
 
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
@@ -20,7 +20,7 @@ TIMEOUT = 5
 class DictToObj(dict):
     """Dictionary to object class."""
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         if name in self:
             return self[name]
         raise AttributeError("No such attribute: " + name)
