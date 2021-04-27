@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="nettigo_air_monitor",
-    version="0.2.3",
+    version="0.2.4",
     author="Maciej Bieniek",
     description="Python wrapper for getting air quality data from Nettigo Air Monitor devices.",
     long_description=long_description,
