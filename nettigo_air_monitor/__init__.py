@@ -1,10 +1,12 @@
 """
 Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 """
+from __future__ import annotations
+
 import asyncio
 import logging
 import re
-from typing import Any, Optional
+from typing import Any
 
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
@@ -29,14 +31,14 @@ class DictToObj(dict):
 class NettigoAirMonitor:
     """Main class to perform Nettigo Air Monitor requests"""
 
-    def __init__(self, session: ClientSession, host: Optional[str] = None):
+    def __init__(self, session: ClientSession, host: str):
         """Initialize."""
         self._session = session
         self._host = host
         self._software_version = None
 
     @staticmethod
-    def _construct_url(arg: str, **kwargs) -> str:
+    def _construct_url(arg: str, **kwargs: str) -> str:
         """Construct Nettigo Air Monitor URL."""
         return ENDPOINTS[arg].format(**kwargs)
 
@@ -54,7 +56,7 @@ class NettigoAirMonitor:
             for item in data
         }
 
-    async def _async_get_data(self, url: str, use_json: bool = True):
+    async def _async_get_data(self, url: str, use_json: bool = True) -> Any:
         """Retreive data from the device."""
         last_error = None
         for retry in range(RETRIES):
@@ -97,7 +99,7 @@ class NettigoAirMonitor:
 
         return DictToObj(sensors)
 
-    async def async_get_mac_address(self):
+    async def async_get_mac_address(self) -> str:
         """Retreive the device MAC address."""
         url = self._construct_url(ATTR_VALUES, host=self._host)
         data = await self._async_get_data(url, use_json=False)
@@ -106,10 +108,10 @@ class NettigoAirMonitor:
         if not mac:
             raise CannotGetMac("Cannot get MAC address from device")
 
-        return mac[0]
+        return str(mac[0])
 
     @property
-    def software_version(self) -> Optional[str]:
+    def software_version(self) -> str | None:
         """Return software version."""
         return self._software_version
 
