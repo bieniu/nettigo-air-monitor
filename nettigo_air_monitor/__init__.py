@@ -6,7 +6,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
-from typing import Any
+from typing import Any, cast
 
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
@@ -108,7 +108,7 @@ class NettigoAirMonitor:
         if not mac:
             raise CannotGetMac("Cannot get MAC address from device")
 
-        return str(mac[0])
+        return cast(str, mac[0])
 
     @property
     def software_version(self) -> str | None:
