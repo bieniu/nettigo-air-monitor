@@ -1,5 +1,5 @@
 """Constants for nettigo-air-monitor library."""
-from typing import Dict, Pattern
+from typing import Dict
 
 ATTR_DATA: str = "data"
 ATTR_SENSOR_VALUES: str = "sensordatavalues"
