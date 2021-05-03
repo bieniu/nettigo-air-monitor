@@ -1,5 +1,5 @@
 """Constants for nettigo-air-monitor library."""
-from typing import Dict
+from typing import Dict, Pattern
 
 ATTR_DATA: str = "data"
 ATTR_SENSOR_VALUES: str = "sensordatavalues"
@@ -12,4 +12,4 @@ ENDPOINTS: Dict[str, str] = {
     ATTR_VALUES: "http://{host}/values",
 }
 
-MAC_PATTERN = r"([0-9a-fA-F]{2}[:]){5}([0-9a-fA-F]{2})"
+MAC_PATTERN: str = r"([0-9a-fA-F]{2}[:]){5}([0-9a-fA-F]{2})"

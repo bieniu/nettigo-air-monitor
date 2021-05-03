@@ -13,8 +13,8 @@ from .const import ATTR_DATA, ATTR_VALUES, ENDPOINTS, HTTP_OK, MAC_PATTERN
 
 _LOGGER = logging.getLogger(__name__)
 
-RETRIES = 4
-TIMEOUT = 5
+RETRIES: int = 4
+TIMEOUT: int = 5
 
 
 class DictToObj(dict):
@@ -41,7 +41,7 @@ class NettigoAirMonitor:
         return ENDPOINTS[arg].format(**kwargs)
 
     @staticmethod
-    def _parse_sensor_data(data: Dict) -> Dict:
+    def _parse_sensor_data(data: Dict[Any, Any]) -> Dict[str, Any]:
         """Parse sensor data dict."""
         return {
             item["value_type"].lower(): int(item["value"])
