@@ -38,7 +38,7 @@ class NettigoAirMonitor:
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
         """Construct Nettigo Air Monitor URL."""
-        return cast(str, ENDPOINTS[arg].format(**kwargs))
+        return ENDPOINTS[arg].format(**kwargs)
 
     @staticmethod
     def _parse_sensor_data(data: Dict) -> Dict:
