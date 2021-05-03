@@ -5,7 +5,7 @@ ATTR_VALUES = "values"
 
 HTTP_OK = 200
 
-ENDPOINTS = {
+ENDPOINTS: dict = {
     ATTR_DATA: "http://{host}/data.json",
     ATTR_VALUES: "http://{host}/values",
 }

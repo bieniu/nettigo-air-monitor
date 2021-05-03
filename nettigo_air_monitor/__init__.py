@@ -1,12 +1,10 @@
 """
 Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 """
-from __future__ import annotations
-
 import asyncio
 import logging
 import re
-from typing import Any, cast
+from typing import Any, Dict, Optional, cast
 
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
@@ -31,7 +29,7 @@ class DictToObj(dict):
 class NettigoAirMonitor:
     """Main class to perform Nettigo Air Monitor requests"""
 
-    def __init__(self, session: ClientSession, host: str):
+    def __init__(self, session: ClientSession, host: str) -> None:
         """Initialize."""
         self._session = session
         self._host = host
@@ -40,10 +38,10 @@ class NettigoAirMonitor:
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
         """Construct Nettigo Air Monitor URL."""
-        return ENDPOINTS[arg].format(**kwargs)
+        return cast(str, ENDPOINTS[arg].format(**kwargs))
 
     @staticmethod
-    def _parse_sensor_data(data: dict) -> dict:
+    def _parse_sensor_data(data: Dict) -> Dict:
         """Parse sensor data dict."""
         return {
             item["value_type"].lower(): int(item["value"])
@@ -111,7 +109,7 @@ class NettigoAirMonitor:
         return cast(str, mac[0])
 
     @property
-    def software_version(self) -> str | None:
+    def software_version(self) -> Optional[str]:
         """Return software version."""
         return self._software_version
 
@@ -119,7 +117,7 @@ class NettigoAirMonitor:
 class ApiError(Exception):
     """Raised when request ended in error."""
 
-    def __init__(self, status: str):
+    def __init__(self, status: str) -> None:
         """Initialize."""
         super().__init__(status)
         self.status = status
@@ -128,7 +126,7 @@ class ApiError(Exception):
 class CannotGetMac(Exception):
     """Raised when cannot get device MAC address."""
 
-    def __init__(self, status: str):
+    def __init__(self, status: str) -> None:
         """Initialize."""
         super().__init__(status)
         self.status = status
@@ -137,7 +135,7 @@ class CannotGetMac(Exception):
 class InvalidSensorData(Exception):
     """Raised when sensor data is invalid."""
 
-    def __init__(self, status: str):
+    def __init__(self, status: str) -> None:
         """Initialize."""
         super().__init__(status)
         self.status = status
