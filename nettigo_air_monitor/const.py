@@ -7,6 +7,9 @@ ATTR_VALUES: str = "values"
 
 HTTP_OK: int = 200
 
+RETRIES: int = 4
+TIMEOUT: int = 5
+
 ENDPOINTS: Dict[str, str] = {
     ATTR_DATA: "http://{host}/data.json",
     ATTR_VALUES: "http://{host}/values",

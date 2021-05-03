@@ -9,12 +9,17 @@ from typing import Any, Dict, Optional, cast
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
 
-from .const import ATTR_DATA, ATTR_VALUES, ENDPOINTS, HTTP_OK, MAC_PATTERN
+from .const import (
+    ATTR_DATA,
+    ATTR_VALUES,
+    ENDPOINTS,
+    HTTP_OK,
+    MAC_PATTERN,
+    RETRIES,
+    TIMEOUT,
+)
 
 _LOGGER = logging.getLogger(__name__)
-
-RETRIES: int = 4
-TIMEOUT: int = 5
 
 
 class DictToObj(dict):
