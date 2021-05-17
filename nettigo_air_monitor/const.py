@@ -3,6 +3,7 @@ from typing import Dict
 
 ATTR_DATA: str = "data"
 ATTR_SENSOR_VALUES: str = "sensordatavalues"
+ATTR_UPTIME = "uptime"
 ATTR_VALUES: str = "values"
 
 HTTP_OK: int = 200

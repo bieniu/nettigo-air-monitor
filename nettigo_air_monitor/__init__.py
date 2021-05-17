@@ -11,6 +11,7 @@ from aiohttp.client_exceptions import ClientConnectorError
 
 from .const import (
     ATTR_DATA,
+    ATTR_UPTIME,
     ATTR_VALUES,
     ENDPOINTS,
     HTTP_OK,
@@ -97,9 +98,11 @@ class NettigoAirMonitor:
 
         try:
             sensors = self._parse_sensor_data(data["sensordatavalues"])
-            sensors["uptime"] = int(data["uptime"])
         except (TypeError, KeyError) as err:
             raise InvalidSensorData("Invalid sensor data") from err
+
+        if ATTR_UPTIME in data:
+            sensors[ATTR_UPTIME] = int(data[ATTR_UPTIME])
 
         return DictToObj(sensors)
 
