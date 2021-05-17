@@ -97,6 +97,7 @@ class NettigoAirMonitor:
 
         try:
             sensors = self._parse_sensor_data(data["sensordatavalues"])
+            sensors["uptime"] = int(data["uptime"])
         except (TypeError, KeyError) as err:
             raise InvalidSensorData("Invalid sensor data") from err
 
