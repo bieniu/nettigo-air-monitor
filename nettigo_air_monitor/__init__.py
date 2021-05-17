@@ -4,7 +4,7 @@ Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 import asyncio
 import logging
 import re
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional, Union, cast
 
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
@@ -46,7 +46,7 @@ class NettigoAirMonitor:
         return ENDPOINTS[arg].format(**kwargs)
 
     @staticmethod
-    def _parse_sensor_data(data: Dict[Any, Any]) -> Dict[str, Any]:
+    def _parse_sensor_data(data: Dict[Any, Any]) -> Dict[str, Union[int, float]]:
         """Parse sensor data dict."""
         return {
             item["value_type"].lower(): int(item["value"])
