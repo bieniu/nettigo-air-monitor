@@ -57,6 +57,7 @@ async def test_valid_data():
     assert result.heca_temperature == 15.1
     assert result.heca_humidity == 59.7
     assert result.signal == -85
+    assert result.uptime == 45632
     try:
         result.unknown
     except AttributeError as error:

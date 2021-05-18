@@ -2,6 +2,7 @@
     "software_version": "NAMF-2020-36",
     "age": "144",
     "measurements": "285",
+    "uptime": "45632",
     "sensordatavalues": [
         {
             "value_type": "SDS_P1",

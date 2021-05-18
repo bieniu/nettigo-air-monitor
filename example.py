@@ -6,7 +6,7 @@ from aiohttp import ClientError, ClientSession
 
 from nettigo_air_monitor import ApiError, InvalidSensorData, NettigoAirMonitor
 
-HOST = "192.168.172.12"
+HOST = "nam"
 
 logging.basicConfig(level=logging.DEBUG)
 
