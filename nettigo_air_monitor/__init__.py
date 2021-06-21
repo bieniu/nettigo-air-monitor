@@ -33,7 +33,7 @@ class NettigoAirMonitor:
         """Initialize."""
         self._session = session
         self._host = host
-        self._software_version = None
+        self._software_version: str
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -128,7 +128,7 @@ class NettigoAirMonitor:
         return cast(str, mac[0])
 
     @property
-    def software_version(self) -> Optional[str]:
+    def software_version(self) -> str:
         """Return software version."""
         return self._software_version
 
