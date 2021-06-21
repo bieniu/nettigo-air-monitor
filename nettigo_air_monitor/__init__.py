@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional, Union, cast
 
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
+from dacite import from_dict
 
 from .const import (
     ATTR_DATA,
@@ -16,20 +17,13 @@ from .const import (
     ENDPOINTS,
     HTTP_OK,
     MAC_PATTERN,
+    RENAME_KEY_MAP,
     RETRIES,
     TIMEOUT,
 )
+from .model import NAMSensors
 
 _LOGGER = logging.getLogger(__name__)
-
-
-class DictToObj(dict):
-    """Dictionary to object class."""
-
-    def __getattr__(self, name: str) -> Any:
-        if name in self:
-            return self[name]
-        raise AttributeError("No such attribute: " + name)
 
 
 class NettigoAirMonitor:
@@ -49,16 +43,31 @@ class NettigoAirMonitor:
     @staticmethod
     def _parse_sensor_data(data: Dict[Any, Any]) -> Dict[str, Union[int, float]]:
         """Parse sensor data dict."""
-        return {
-            item["value_type"].lower(): int(item["value"])
-            if item["value_type"] == "signal"
-            else (
-                round(float(item["value"]) / 100)
-                if item["value_type"] in ["BME280_pressure", "BMP280_pressure"]
-                else round(float(item["value"]), 1)
-            )
-            for item in data
+        result = {
+            item["value_type"].lower(): round(float(item["value"]), 1) for item in data
         }
+
+        for item in ["bme280_pressure", "bmp280_pressure"]:
+            if result.get(item):
+                result[item] = round(result[item] / 100)
+
+        for item in [
+            "conc_co2_ppm",
+            "sds_p1",
+            "sds_p2",
+            "sps30_p0",
+            "sps30_p1",
+            "sps30_p2",
+            "sps30_p4",
+            "signal",
+        ]:
+            if result.get(item):
+                result[item] = round(result[item])
+
+        for old_key, new_key in RENAME_KEY_MAP:
+            if result.get(old_key):
+                result[new_key] = result.pop(old_key)
+        return result
 
     async def _async_get_data(self, url: str, use_json: bool = True) -> Any:
         """Retreive data from the device."""
@@ -88,7 +97,7 @@ class NettigoAirMonitor:
 
         raise ApiError(str(last_error))
 
-    async def async_update(self) -> DictToObj:
+    async def async_update(self) -> NAMSensors:
         """Retreive data from the device."""
         url = self._construct_url(ATTR_DATA, host=self._host)
 
@@ -104,7 +113,7 @@ class NettigoAirMonitor:
         if ATTR_UPTIME in data:
             sensors[ATTR_UPTIME] = int(data[ATTR_UPTIME])
 
-        return DictToObj(sensors)
+        return from_dict(data_class=NAMSensors, data=sensors)
 
     async def async_get_mac_address(self) -> str:
         """Retreive the device MAC address."""
