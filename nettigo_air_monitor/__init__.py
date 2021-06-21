@@ -48,7 +48,7 @@ class NettigoAirMonitor:
         }
 
         for item in ["bme280_pressure", "bmp280_pressure"]:
-            if result.get(item):
+            if result.get(item) is not None:
                 result[item] = round(result[item] / 100)
 
         for item in [
@@ -61,12 +61,13 @@ class NettigoAirMonitor:
             "sps30_p4",
             "signal",
         ]:
-            if result.get(item):
+            if result.get(item) is not None:
                 result[item] = round(result[item])
 
         for old_key, new_key in RENAME_KEY_MAP:
-            if result.get(old_key):
+            if result.get(old_key) is not None:
                 result[new_key] = result.pop(old_key)
+
         return result
 
     async def _async_get_data(self, url: str, use_json: bool = True) -> Any:

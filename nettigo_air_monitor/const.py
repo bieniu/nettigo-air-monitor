@@ -19,6 +19,8 @@ ENDPOINTS: Dict[str, str] = {
 RENAME_KEY_MAP = [
     ("conc_co2_ppm", "mhz14a_carbon_dioxide"),
     ("humidity", "dht22_humidity"),
+    ("sds_p1", "sds011_p1"),
+    ("sds_p2", "sds011_p2"),
     ("temperature", "dht22_temperature"),
 ]
 
