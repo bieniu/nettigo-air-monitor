@@ -4,7 +4,7 @@ Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 import asyncio
 import logging
 import re
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Union, cast
 
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
