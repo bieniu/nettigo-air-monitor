@@ -59,8 +59,8 @@ async def test_valid_data():
     assert result.heca_humidity == 59.7
     assert result.heca_temperature == 15.1
     assert result.mhz14a_carbon_dioxide == 865
-    assert result.sds_p1 == 23
-    assert result.sds_p2 == 20
+    assert result.sds011_p1 == 23
+    assert result.sds011_p2 == 20
     assert result.sht3x_humidity == 34.7
     assert result.sht3x_temperature == 6.3
     assert result.signal == -85
