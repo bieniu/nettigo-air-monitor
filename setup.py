@@ -16,6 +16,7 @@ setup(
     url="https://github.com/bieniu/nettigo-air-monitor",
     license="Apache-2.0 License",
     packages=["nettigo_air_monitor"],
+    package_data={"nettigo_air_monitor": ["py.typed"]},
     python_requires=">=3.6",
     install_requires=list(val.strip() for val in open("requirements.txt")),
     classifiers=[
