@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="nettigo_air_monitor",
-    version="0.2.6",
+    version="1.0.0",
     author="Maciej Bieniek",
     description="Python wrapper for getting air quality data from Nettigo Air Monitor devices.",
     long_description=long_description,
@@ -16,6 +16,7 @@ setup(
     url="https://github.com/bieniu/nettigo-air-monitor",
     license="Apache-2.0 License",
     packages=["nettigo_air_monitor"],
+    package_data={"nettigo_air_monitor": ["py.typed"]},
     python_requires=">=3.6",
     install_requires=list(val.strip() for val in open("requirements.txt")),
     classifiers=[

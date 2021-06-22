@@ -49,19 +49,26 @@ async def test_valid_data():
     await session.close()
 
     assert nam.software_version == "NAMF-2020-36"
-    assert result.sds_p1 == 22.7
-    assert result.sds_p2 == 20.0
-    assert result.bme280_temperature == 10.6
     assert result.bme280_humidity == 85.3
     assert result.bme280_pressure == 989
-    assert result.heca_temperature == 15.1
+    assert result.bme280_temperature == 10.6
+    assert result.bmp280_pressure == 1022
+    assert result.bmp280_temperature == 5.6
+    assert result.dht22_humidity == 46.2
+    assert result.dht22_temperature == 6.3
     assert result.heca_humidity == 59.7
+    assert result.heca_temperature == 15.1
+    assert result.mhz14a_carbon_dioxide == 865
+    assert result.sds011_p1 == 23
+    assert result.sds011_p2 == 20
+    assert result.sht3x_humidity == 34.7
+    assert result.sht3x_temperature == 6.3
     assert result.signal == -85
+    assert result.sps30_p0 == 31
+    assert result.sps30_p1 == 21
+    assert result.sps30_p2 == 34
+    assert result.sps30_p4 == 25
     assert result.uptime == 45632
-    try:
-        result.unknown
-    except AttributeError as error:
-        assert str(error) == "No such attribute: unknown"
 
 
 @pytest.mark.asyncio

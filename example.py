@@ -15,10 +15,9 @@ async def main():
     try:
         async with ClientSession() as websession, async_timeout.timeout(30):
             nam = NettigoAirMonitor(websession, HOST)
+            
             data = await nam.async_update()
-
             mac = await nam.async_get_mac_address()
-
     except (
         asyncio.exceptions.TimeoutError,
         ApiError,
@@ -27,6 +26,7 @@ async def main():
     ) as error:
         print(f"Error: {error}")
     else:
+        print(f"Firmware: {nam.software_version}")
         print(f"MAC address: {mac}")
         print(f"Data: {data}")
 
