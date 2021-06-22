@@ -41,6 +41,7 @@ async def main():
     ) as error:
         print(f"Error: {error}")
     else:
+        print(f"Firmware: {nam.software_version}")
         print(f"MAC address: {mac}")
         print(f"Data: {data}")
 
