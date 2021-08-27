@@ -23,7 +23,7 @@ VALUES = "MAC: AA:BB:CC:DD:EE:FF<br/>"
 @pytest.mark.asyncio
 async def test_valid_data():
     """Test with valid data."""
-    with open("tests/fixtures/valid_data.json") as file:
+    with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
         data = json.load(file)
 
     session = aiohttp.ClientSession()
@@ -130,7 +130,7 @@ async def test_retry():
 @pytest.mark.asyncio
 async def test_invalid_sensor_data():
     """Test InvalidSensorData error."""
-    with open("tests/fixtures/invalid_data.json") as file:
+    with open("tests/fixtures/invalid_data.json", encoding="utf-8") as file:
         data = json.load(file)
 
     session = aiohttp.ClientSession()
