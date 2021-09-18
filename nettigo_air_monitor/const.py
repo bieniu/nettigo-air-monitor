@@ -1,6 +1,4 @@
 """Constants for nettigo-air-monitor library."""
-from typing import Dict
-
 ATTR_DATA: str = "data"
 ATTR_SENSOR_VALUES: str = "sensordatavalues"
 ATTR_UPTIME = "uptime"
@@ -11,7 +9,7 @@ HTTP_OK: int = 200
 RETRIES: int = 4
 TIMEOUT: int = 5
 
-ENDPOINTS: Dict[str, str] = {
+ENDPOINTS: dict[str, str] = {
     ATTR_DATA: "http://{host}/data.json",
     ATTR_VALUES: "http://{host}/values",
 }
