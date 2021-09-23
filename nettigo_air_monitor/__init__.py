@@ -4,6 +4,7 @@ Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 import asyncio
 import logging
 import re
+from http import HTTPStatus
 from typing import Any, Union, cast
 
 from aiohttp import ClientSession
@@ -15,7 +16,6 @@ from .const import (
     ATTR_UPTIME,
     ATTR_VALUES,
     ENDPOINTS,
-    HTTP_OK,
     MAC_PATTERN,
     RENAME_KEY_MAP,
     RETRIES,
@@ -85,7 +85,7 @@ class NettigoAirMonitor:
                 _LOGGER.debug(
                     "Data retrieved from %s, status: %s", self._host, resp.status
                 )
-                if resp.status != HTTP_OK:
+                if resp.status != HTTPStatus.OK.value:
                     raise ApiError(
                         f"Invalid response from device {self._host}: {resp.status}"
                     )

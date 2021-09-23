@@ -4,8 +4,6 @@ ATTR_SENSOR_VALUES: str = "sensordatavalues"
 ATTR_UPTIME = "uptime"
 ATTR_VALUES: str = "values"
 
-HTTP_OK: int = 200
-
 RETRIES: int = 4
 TIMEOUT: int = 5
 
