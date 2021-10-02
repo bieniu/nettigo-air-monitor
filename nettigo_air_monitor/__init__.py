@@ -1,11 +1,13 @@
 """
 Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 """
+from __future__ import annotations
+
 import asyncio
 import logging
 import re
 from http import HTTPStatus
-from typing import Any, Dict, Union, cast
+from typing import Any, cast
 
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientConnectorError
@@ -41,7 +43,7 @@ class NettigoAirMonitor:
         return ENDPOINTS[arg].format(**kwargs)
 
     @staticmethod
-    def _parse_sensor_data(data: Dict[Any, Any]) -> Dict[str, Union[int, float]]:
+    def _parse_sensor_data(data: dict[Any, Any]) -> dict[str, int | float]:
         """Parse sensor data dict."""
         result = {
             item["value_type"].lower(): round(float(item["value"]), 1) for item in data
@@ -121,8 +123,7 @@ class NettigoAirMonitor:
         url = self._construct_url(ATTR_VALUES, host=self._host)
         data = await self._async_get_data(url, use_json=False)
 
-        mac = re.search(MAC_PATTERN, data)
-        if not mac:
+        if not (mac := re.search(MAC_PATTERN, data)):
             raise CannotGetMac("Cannot get MAC address from device")
 
         return cast(str, mac[0])
