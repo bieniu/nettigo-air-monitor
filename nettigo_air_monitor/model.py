@@ -4,7 +4,7 @@ from typing import Optional
 
 
 @dataclass
-class NAMSensors:  # pylint: disable=too-many-instance-attributes
+class NAMSensors:
     """Data class for NAM sensors."""
 
     bme280_humidity: Optional[float]
