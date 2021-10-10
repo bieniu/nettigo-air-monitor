@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 
-@dataclass
+@dataclass(frozen=True)
 class NAMSensors:
     """Data class for NAM sensors."""
 
