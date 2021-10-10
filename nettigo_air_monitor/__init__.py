@@ -49,7 +49,7 @@ class NettigoAirMonitor:
             item["value_type"].lower(): round(float(item["value"]), 1) for item in data
         }
 
-        for item in ("bme180_pressure", "bme280_pressure", "bmp280_pressure"):
+        for item in ("bmp_pressure", "bme280_pressure", "bmp280_pressure"):
             if result.get(item) is not None:
                 result[item] = round(result[item] / 100)
 

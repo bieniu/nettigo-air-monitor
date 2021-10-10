@@ -52,8 +52,8 @@ async def test_valid_data():
     assert result.bme280_humidity == 85.3
     assert result.bme280_pressure == 989
     assert result.bme280_temperature == 10.6
-    assert result.bme180_pressure == 997
-    assert result.bme180_temperature == 10.8
+    assert result.bmp180_pressure == 997
+    assert result.bmp180_temperature == 10.8
     assert result.bmp280_pressure == 1022
     assert result.bmp280_temperature == 5.6
     assert result.dht22_humidity == 46.2
