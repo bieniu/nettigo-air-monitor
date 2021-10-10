@@ -49,22 +49,24 @@ class NettigoAirMonitor:
             item["value_type"].lower(): round(float(item["value"]), 1) for item in data
         }
 
-        for item in ("bmp_pressure", "bme280_pressure", "bmp280_pressure"):
-            if result.get(item) is not None:
-                result[item] = round(result[item] / 100)
-
-        for item in (
-            "conc_co2_ppm",
-            "sds_p1",
-            "sds_p2",
-            "sps30_p0",
-            "sps30_p1",
-            "sps30_p2",
-            "sps30_p4",
-            "signal",
-        ):
-            if result.get(item) is not None:
-                result[item] = round(result[item])
+        for key, value in result.items():
+            if "pressure" in key and value is not None:
+                result[key] = round(value / 100)
+            if (
+                key
+                in (
+                    "conc_co2_ppm",
+                    "sds_p1",
+                    "sds_p2",
+                    "sps30_p0",
+                    "sps30_p1",
+                    "sps30_p2",
+                    "sps30_p4",
+                    "signal",
+                )
+                and value is not None
+            ):
+                result[key] = round(value)
 
         for old_key, new_key in RENAME_KEY_MAP:
             if result.get(old_key) is not None:
