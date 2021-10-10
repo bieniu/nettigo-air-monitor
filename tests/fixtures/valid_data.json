@@ -41,6 +41,14 @@
             "value": "102201.18"
         },
         {
+            "value_type": "BMP_temperature",
+            "value": "10.8"
+        },
+        {
+            "value_type": "BMP_pressure",
+            "value": "99678.40"
+        },
+        {
             "value_type": "SHT3X_temperature",
             "value": "6.28"
         },
