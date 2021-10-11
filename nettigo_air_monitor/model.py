@@ -3,13 +3,15 @@ from dataclasses import dataclass
 from typing import Optional
 
 
-@dataclass
+@dataclass(frozen=True)
 class NAMSensors:
     """Data class for NAM sensors."""
 
     bme280_humidity: Optional[float]
     bme280_pressure: Optional[int]
     bme280_temperature: Optional[float]
+    bmp180_pressure: Optional[int]
+    bmp180_temperature: Optional[float]
     bmp280_pressure: Optional[int]
     bmp280_temperature: Optional[float]
     dht22_humidity: Optional[float]

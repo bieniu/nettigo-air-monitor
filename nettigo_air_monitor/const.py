@@ -17,6 +17,8 @@ ENDPOINTS: Final[dict[str, str]] = {
 }
 
 RENAME_KEY_MAP: Final[list[tuple[str, str]]] = [
+    ("bmp_pressure", "bmp180_pressure"),
+    ("bmp_temperature", "bmp180_temperature"),
     ("conc_co2_ppm", "mhz14a_carbon_dioxide"),
     ("humidity", "dht22_humidity"),
     ("sds_p1", "sds011_p1"),
