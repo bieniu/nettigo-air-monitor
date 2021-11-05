@@ -1,6 +1,4 @@
-"""
-Python wrapper for getting air quality data from Nettigo Air Monitor devices.
-"""
+"""Python wrapper for getting air quality data from Nettigo Air Monitor devices."""
 from __future__ import annotations
 
 import asyncio
@@ -29,7 +27,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class NettigoAirMonitor:
-    """Main class to perform Nettigo Air Monitor requests"""
+    """Main class to perform Nettigo Air Monitor requests."""
 
     def __init__(self, session: ClientSession, host: str) -> None:
         """Initialize."""
@@ -75,7 +73,7 @@ class NettigoAirMonitor:
         return result
 
     async def _async_get_data(self, url: str, use_json: bool = True) -> Any:
-        """Retreive data from the device."""
+        """Retrieve data from the device."""
         last_error = None
         for retry in range(RETRIES):
             try:
@@ -103,7 +101,7 @@ class NettigoAirMonitor:
         raise ApiError(str(last_error))
 
     async def async_update(self) -> NAMSensors:
-        """Retreive data from the device."""
+        """Retrieve data from the device."""
         url = self._construct_url(ATTR_DATA, host=self._host)
 
         data = await self._async_get_data(url)
@@ -121,7 +119,7 @@ class NettigoAirMonitor:
         return from_dict(data_class=NAMSensors, data=sensors)
 
     async def async_get_mac_address(self) -> str:
-        """Retreive the device MAC address."""
+        """Retrieve the device MAC address."""
         url = self._construct_url(ATTR_VALUES, host=self._host)
         data = await self._async_get_data(url, use_json=False)
 
