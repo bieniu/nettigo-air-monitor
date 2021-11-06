@@ -3,6 +3,15 @@ from dataclasses import dataclass
 from typing import Optional
 
 
+@dataclass
+class ConnectionOptions:
+    """Options for NAM."""
+
+    host: str
+    username: Optional[str] = None
+    password: Optional[str] = None
+
+
 @dataclass(frozen=True)
 class NAMSensors:
     """Data class for NAM sensors."""

@@ -21,19 +21,36 @@ from .const import (
     RETRIES,
     TIMEOUT,
 )
-from .model import NAMSensors
+from .exceptions import ApiError, AuthRequired, CannotGetMac, InvalidSensorData
+from .model import ConnectionOptions, NAMSensors
 
 _LOGGER = logging.getLogger(__name__)
+
+
+async def create_device(session: ClientSession, options: ConnectionOptions):
+    """Create a new device instance."""
+    device = NettigoAirMonitor(session, options)
+    await device.initialize()
+    return device
 
 
 class NettigoAirMonitor:
     """Main class to perform Nettigo Air Monitor requests."""
 
-    def __init__(self, session: ClientSession, host: str) -> None:
+    def __init__(self, session: ClientSession, options: ConnectionOptions) -> None:
         """Initialize."""
         self._session = session
-        self._host = host
+        self._host = options.host
+        self._username = options.username
+        self._password = options.password
         self._software_version: str
+
+    async def initialize(self) -> None:
+        """Initialize."""
+        _LOGGER.debug("Initializing device %s", self._host)
+
+        if not await self._async_post_data("config"):
+            raise AuthRequired("(Re)auth is required")
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -133,41 +150,13 @@ class NettigoAirMonitor:
         """Return software version."""
         return self._software_version
 
-    async def http_post_request(self, method: str) -> bool:
-        """Perform a HTTP post request."""
-        url = f"http://{self._host}/{method}"
+    async def _async_post_data(self, path: str) -> bool:
+        """Perform a HTTP request."""
+        url = url = f"http://{self._host}/{path}"
         resp = await self._session.post(url, timeout=TIMEOUT)
-        if resp.status != HTTPStatus.OK.value:
-            raise ApiError(f"Invalid response from device {self._host}: {resp.status}")
-        return True
 
-    async def restart(self) -> dict[str, Any]:
+        return resp.status == HTTPStatus.OK.value
+
+    async def restart(self) -> bool:
         """Restart the device."""
-        return await self.http_post_request("reset")
-
-
-class ApiError(Exception):
-    """Raised when request ended in error."""
-
-    def __init__(self, status: str) -> None:
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
-
-
-class CannotGetMac(Exception):
-    """Raised when cannot get device MAC address."""
-
-    def __init__(self, status: str) -> None:
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
-
-
-class InvalidSensorData(Exception):
-    """Raised when sensor data is invalid."""
-
-    def __init__(self, status: str) -> None:
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
+        return await self._async_post_data("reset")
