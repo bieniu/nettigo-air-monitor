@@ -133,6 +133,18 @@ class NettigoAirMonitor:
         """Return software version."""
         return self._software_version
 
+    async def http_post_request(self, method: str) -> bool:
+        """Perform a HTTP post request."""
+        url = f"http://{self._host}/{method}"
+        resp = await self._session.post(url, timeout=TIMEOUT)
+        if resp.status != HTTPStatus.OK.value:
+            raise ApiError(f"Invalid response from device {self._host}: {resp.status}")
+        return True
+
+    async def restart(self) -> dict[str, Any]:
+        """Restart the device."""
+        return await self.http_post_request("reset")
+
 
 class ApiError(Exception):
     """Raised when request ended in error."""

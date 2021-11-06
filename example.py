@@ -12,10 +12,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 async def main():
+    websession = ClientSession()
+    nam = NettigoAirMonitor(websession, HOST)
     try:
-        async with ClientSession() as websession, async_timeout.timeout(30):
-            nam = NettigoAirMonitor(websession, HOST)
-
+        async with async_timeout.timeout(30):
             data = await nam.async_update()
             mac = await nam.async_get_mac_address()
     except (
@@ -29,6 +29,13 @@ async def main():
         print(f"Firmware: {nam.software_version}")
         print(f"MAC address: {mac}")
         print(f"Data: {data}")
+
+    try:
+        await nam.restart()
+    except ApiError as error:
+        print(f"Error: {error}")
+
+    await websession.close()
 
 
 loop = asyncio.get_event_loop()
