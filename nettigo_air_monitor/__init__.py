@@ -41,8 +41,7 @@ class NettigoAirMonitor:
         """Initialize."""
         self._session = session
         self._host = options.host
-        self._username = options.username
-        self._password = options.password
+        self._options = options
         self._software_version: str
 
     async def initialize(self) -> None:
@@ -151,12 +150,16 @@ class NettigoAirMonitor:
         return self._software_version
 
     async def _async_post_data(self, path: str) -> bool:
-        """Perform a HTTP request."""
+        """Perform a HTTP post request."""
         url = url = f"http://{self._host}/{path}"
-        resp = await self._session.post(url, timeout=TIMEOUT)
+        resp = await self._session.post(url, auth=self._options.auth, timeout=TIMEOUT)
 
         return resp.status == HTTPStatus.OK.value
 
     async def restart(self) -> bool:
         """Restart the device."""
         return await self._async_post_data("reset")
+
+    async def ota_update(self) -> bool:
+        """Trigger OTA update."""
+        return await self._async_post_data("ota")

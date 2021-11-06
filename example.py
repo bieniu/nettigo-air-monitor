@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 async def main():
     websession = ClientSession()
-    options = ConnectionOptions(host="nam")
+    options = ConnectionOptions(host="nam", username="user", password="pass")
     try:
         nam = await create_device(websession, options)
         await asyncio.sleep(1)
@@ -36,11 +36,6 @@ async def main():
         print(f"Firmware: {nam.software_version}")
         print(f"MAC address: {mac}")
         print(f"Data: {data}")
-
-    # try:
-    #     await nam.restart()
-    # except (ApiError, AuthRequired, ClientConnectorError) as error:
-    #     print(f"Error: {error}")
 
     await websession.close()
 
