@@ -27,13 +27,6 @@ from .model import ConnectionOptions, NAMSensors
 _LOGGER = logging.getLogger(__name__)
 
 
-async def create_device(session: ClientSession, options: ConnectionOptions):
-    """Create a new device instance."""
-    device = NettigoAirMonitor(session, options)
-    await device.initialize()
-    return device
-
-
 class NettigoAirMonitor:
     """Main class to perform Nettigo Air Monitor requests."""
 
@@ -43,6 +36,15 @@ class NettigoAirMonitor:
         self._host = options.host
         self._options = options
         self._software_version: str
+
+    @classmethod
+    async def create(
+        cls, session: ClientSession, options: ConnectionOptions
+    ) -> NettigoAirMonitor:
+        """Create a new device instance."""
+        instance = cls(session, options)
+        await instance.initialize()
+        return instance
 
     async def initialize(self) -> None:
         """Initialize."""

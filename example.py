@@ -9,7 +9,7 @@ from nettigo_air_monitor import (
     AuthRequired,
     ConnectionOptions,
     InvalidSensorData,
-    create_device,
+    NettigoAirMonitor,
 )
 
 logging.basicConfig(level=logging.DEBUG)
@@ -19,8 +19,11 @@ async def main():
     websession = ClientSession()
     options = ConnectionOptions(host="nam", username="user", password="pass")
     try:
-        nam = await create_device(websession, options)
+        nam = await NettigoAirMonitor.create(websession, options)
+
+        # The device takes some time between requests
         await asyncio.sleep(1)
+
         async with async_timeout.timeout(30):
             data = await nam.async_update()
             mac = await nam.async_get_mac_address()
