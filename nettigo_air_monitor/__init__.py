@@ -36,7 +36,7 @@ class NettigoAirMonitor:
     def __init__(self, session: ClientSession, options: ConnectionOptions) -> None:
         """Initialize."""
         self._session = session
-        self._host = options.host
+        self.host = options.host
         self._options = options
         self._software_version: str
         self._config: dict[str, Any] = {}
@@ -52,9 +52,9 @@ class NettigoAirMonitor:
 
     async def initialize(self) -> None:
         """Initialize."""
-        _LOGGER.debug("Initializing device %s", self._host)
+        _LOGGER.debug("Initializing device %s", self.host)
 
-        url = self._construct_url(ATTR_CONFIG, host=self._host)
+        url = self._construct_url(ATTR_CONFIG, host=self.host)
         resp = await self._async_http_request("get", url, retries=1)
         self._config = await resp.json(content_type="text/plain")
 
@@ -112,16 +112,16 @@ class NettigoAirMonitor:
                 )
             except ClientConnectorError as error:
                 _LOGGER.info(
-                    "Invalid response from device: %s, retry: %s", self._host, retry
+                    "Invalid response from device: %s, retry: %s", self.host, retry
                 )
                 last_error = error
             else:
                 _LOGGER.debug(
-                    "Data retrieved from %s, status: %s", self._host, resp.status
+                    "Data retrieved from %s, status: %s", self.host, resp.status
                 )
                 if resp.status != HTTPStatus.OK.value:
                     raise ApiError(
-                        f"Invalid response from device {self._host}: {resp.status}"
+                        f"Invalid response from device {self.host}: {resp.status}"
                     )
                 if resp.status == HTTPStatus.UNAUTHORIZED.value:
                     raise AuthRequired("(Re)auth is required")
@@ -129,14 +129,14 @@ class NettigoAirMonitor:
                 return resp
 
             wait = TIMEOUT + retry
-            _LOGGER.debug("Waiting %s seconds for device %s", wait, self._host)
+            _LOGGER.debug("Waiting %s seconds for device %s", wait, self.host)
             await asyncio.sleep(wait)
 
         raise ApiError(str(last_error))
 
     async def async_update(self) -> NAMSensors:
         """Retrieve data from the device."""
-        url = self._construct_url(ATTR_DATA, host=self._host)
+        url = self._construct_url(ATTR_DATA, host=self.host)
 
         resp = await self._async_http_request("get", url)
         data = await resp.json()
@@ -155,7 +155,7 @@ class NettigoAirMonitor:
 
     async def async_get_mac_address(self) -> str:
         """Retrieve the device MAC address."""
-        url = self._construct_url(ATTR_VALUES, host=self._host)
+        url = self._construct_url(ATTR_VALUES, host=self.host)
         resp = await self._async_http_request("get", url)
         data = await resp.text()
 
@@ -176,10 +176,10 @@ class NettigoAirMonitor:
 
     async def async_restart(self) -> bool:
         """Restart the device."""
-        url = self._construct_url(ATTR_RESTART, host=self._host)
+        url = self._construct_url(ATTR_RESTART, host=self.host)
         return await self._async_http_request("post", url, retries=1)
 
     async def async_ota_update(self) -> bool:
         """Trigger OTA update."""
-        url = self._construct_url(ATTR_OTA, host=self._host)
+        url = self._construct_url(ATTR_OTA, host=self.host)
         return await self._async_http_request("post", url, retries=1)
