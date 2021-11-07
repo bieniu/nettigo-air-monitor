@@ -1,3 +1,5 @@
+"""An example of using Nettigo Air Monitor package."""
+
 import asyncio
 import logging
 
@@ -16,20 +18,18 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 async def main():
+    """Main."""
     websession = ClientSession()
-    options = ConnectionOptions(host="nam", username="user", password="pass")
+    options = ConnectionOptions(host="nam", username="user", password="password")
     try:
         nam = await NettigoAirMonitor.create(websession, options)
-
-        # The device takes some time between requests
-        await asyncio.sleep(1)
-
         async with async_timeout.timeout(30):
             data = await nam.async_update()
             mac = await nam.async_get_mac_address()
     except (
         ApiError,
         AuthRequired,
+        ClientConnectorError,
         ClientError,
         InvalidSensorData,
         asyncio.exceptions.TimeoutError,
