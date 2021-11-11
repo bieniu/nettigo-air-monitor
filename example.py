@@ -8,7 +8,7 @@ from aiohttp import ClientConnectorError, ClientError, ClientSession
 
 from nettigo_air_monitor import (
     ApiError,
-    AuthRequired,
+    AuthFailed,
     ConnectionOptions,
     InvalidSensorData,
     NettigoAirMonitor,
@@ -28,7 +28,7 @@ async def main():
             mac = await nam.async_get_mac_address()
     except (
         ApiError,
-        AuthRequired,
+        AuthFailed,
         ClientConnectorError,
         ClientError,
         InvalidSensorData,

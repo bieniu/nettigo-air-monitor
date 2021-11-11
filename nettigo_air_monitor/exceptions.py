@@ -15,8 +15,8 @@ class ApiError(NamError):
     """Raised when request ended in error."""
 
 
-class AuthRequired(NamError):
-    """Raised if auth is required but not given."""
+class AuthFailed(NamError):
+    """Raised if auth fails."""
 
 
 class CannotGetMac(NamError):

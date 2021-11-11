@@ -23,7 +23,7 @@ from .const import (
     RETRIES,
     TIMEOUT,
 )
-from .exceptions import ApiError, AuthRequired, CannotGetMac, InvalidSensorData
+from .exceptions import ApiError, AuthFailed, CannotGetMac, InvalidSensorData
 from .model import ConnectionOptions, NAMSensors
 
 _LOGGER = logging.getLogger(__name__)
@@ -111,7 +111,7 @@ class NettigoAirMonitor:
                 )
             except ClientResponseError as error:
                 if error.status == HTTPStatus.UNAUTHORIZED.value:
-                    raise AuthRequired("(Re)auth is required") from error
+                    raise AuthFailed("Authorization has failed") from error
                 raise ApiError(
                     f"Invalid response from device {self.host}: {error.status}"
                 ) from error
