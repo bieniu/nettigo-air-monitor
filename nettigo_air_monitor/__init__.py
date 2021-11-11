@@ -38,7 +38,6 @@ class NettigoAirMonitor:
         self.host = options.host
         self._options = options
         self._software_version: str
-        self._config: dict[str, Any] = {}
 
     @classmethod
     async def create(
@@ -54,8 +53,7 @@ class NettigoAirMonitor:
         _LOGGER.debug("Initializing device %s", self.host)
 
         url = self._construct_url(ATTR_CONFIG, host=self.host)
-        resp = await self._async_http_request("get", url, retries=1)
-        self._config = await resp.json(content_type="text/plain")
+        await self._async_http_request("get", url, retries=1)
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -171,11 +169,6 @@ class NettigoAirMonitor:
     def software_version(self) -> str:
         """Return software version."""
         return self._software_version
-
-    @property
-    def config(self) -> dict[str, Any]:
-        """Return software version."""
-        return self._config
 
     async def async_restart(self) -> bool:
         """Restart the device."""
