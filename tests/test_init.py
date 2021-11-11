@@ -1,14 +1,16 @@
 """Tests for nettigo package."""
 import json
+from http import HTTPStatus
 from unittest.mock import Mock
 
 import aiohttp
 import pytest
-from aiohttp.client_exceptions import ClientConnectorError
+from aiohttp import ClientConnectorError, ClientResponseError
 from aioresponses import aioresponses
 
 from nettigo_air_monitor import (
     ApiError,
+    AuthFailed,
     CannotGetMac,
     ConnectionOptions,
     InvalidSensorData,
@@ -138,6 +140,28 @@ async def test_valid_data_with_auth():
 
 
 @pytest.mark.asyncio
+async def test_auth_failed():
+    """Test auth failed."""
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            exception=ClientResponseError(
+                Mock(), Mock(), code=HTTPStatus.UNAUTHORIZED.value
+            ),
+        )
+
+        options = ConnectionOptions(VALID_IP, "user", "pass")
+        try:
+            await NettigoAirMonitor.create(session, options)
+        except AuthFailed as error:
+            assert str(error) == "Authorization has failed"
+
+    await session.close()
+
+
+@pytest.mark.asyncio
 async def test_api_error():
     """Test API error."""
     session = aiohttp.ClientSession()
@@ -149,7 +173,7 @@ async def test_api_error():
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
-            status=404,
+            status=HTTPStatus.FORBIDDEN.value,
         )
 
         options = ConnectionOptions(VALID_IP)
@@ -159,7 +183,7 @@ async def test_api_error():
             await nam.async_update()
         except ApiError as error:
             assert (
-                str(error.status) == "Invalid response from device 192.168.172.12: 404"
+                str(error.status) == "Invalid response from device 192.168.172.12: 403"
             )
 
     await session.close()
@@ -263,3 +287,31 @@ async def test_username_without_password():
         ConnectionOptions(VALID_IP, "user")
     except ValueError as error:
         assert str(error) == "Supply both username and password"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "method,endpoint", [("async_restart", "reset"), ("async_ota_update", "ota")]
+)
+async def test_post_methods(method, endpoint):
+    """Test post methods."""
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            payload={},
+        )
+        session_mock.post(f"http://192.168.172.12/{endpoint}")
+
+        options = ConnectionOptions(VALID_IP)
+        nam = await NettigoAirMonitor.create(session, options)
+
+        method_to_call = getattr(nam, method)
+        result = await method_to_call()
+
+        assert str(result.url) == f"http://192.168.172.12/{endpoint}"
+        assert result.status == 200
+        assert result.headers["Content-Type"] == "application/json"
+
+    await session.close()
