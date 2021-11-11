@@ -10,6 +10,7 @@ from aioresponses import aioresponses
 from nettigo_air_monitor import (
     ApiError,
     CannotGetMac,
+    ConnectionOptions,
     InvalidSensorData,
     NettigoAirMonitor,
 )
@@ -38,7 +39,8 @@ async def test_valid_data():
             payload=VALUES,
         )
 
-        nam = NettigoAirMonitor(session, VALID_IP)
+        options = ConnectionOptions(VALID_IP)
+        nam = NettigoAirMonitor(session, options)
 
         result = await nam.async_get_mac_address()
 
@@ -84,7 +86,8 @@ async def test_api_error():
             status=404,
         )
 
-        nam = NettigoAirMonitor(session, VALID_IP)
+        options = ConnectionOptions(VALID_IP)
+        nam = NettigoAirMonitor(session, options)
 
         try:
             await nam.async_update()
@@ -119,7 +122,8 @@ async def test_retry():
             exception=ClientConnectorError(Mock(), Mock()),
         )
 
-        nam = NettigoAirMonitor(session, VALID_IP)
+        options = ConnectionOptions(VALID_IP)
+        nam = NettigoAirMonitor(session, options)
 
         try:
             await nam.async_update()
@@ -142,7 +146,8 @@ async def test_invalid_sensor_data():
             "http://192.168.172.12/data.json",
             payload=data,
         )
-        nam = NettigoAirMonitor(session, VALID_IP)
+        options = ConnectionOptions(VALID_IP)
+        nam = NettigoAirMonitor(session, options)
 
         try:
             await nam.async_update()
@@ -162,7 +167,8 @@ async def test_cannot_get_mac():
             "http://192.168.172.12/values",
             payload="lorem ipsum",
         )
-        nam = NettigoAirMonitor(session, VALID_IP)
+        options = ConnectionOptions(VALID_IP)
+        nam = NettigoAirMonitor(session, options)
 
         try:
             await nam.async_get_mac_address()
