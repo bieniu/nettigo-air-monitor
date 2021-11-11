@@ -7,8 +7,7 @@ import re
 from http import HTTPStatus
 from typing import Any, cast
 
-from aiohttp import ClientSession
-from aiohttp.client_exceptions import ClientConnectorError
+from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from dacite import from_dict
 
 from .const import (
@@ -110,6 +109,12 @@ class NettigoAirMonitor:
                     timeout=TIMEOUT,
                     auth=self._options.auth,
                 )
+            except ClientResponseError as error:
+                if error.status == HTTPStatus.UNAUTHORIZED.value:
+                    raise AuthRequired("(Re)auth is required") from error
+                raise ApiError(
+                    f"Invalid response from device {self.host}: {error.status}"
+                ) from error
             except ClientConnectorError as error:
                 _LOGGER.info(
                     "Invalid response from device: %s, retry: %s", self.host, retry
@@ -123,8 +128,6 @@ class NettigoAirMonitor:
                     raise ApiError(
                         f"Invalid response from device {self.host}: {resp.status}"
                     )
-                if resp.status == HTTPStatus.UNAUTHORIZED.value:
-                    raise AuthRequired("(Re)auth is required")
 
                 return resp
 
@@ -145,8 +148,8 @@ class NettigoAirMonitor:
 
         try:
             sensors = self._parse_sensor_data(data["sensordatavalues"])
-        except (TypeError, KeyError) as err:
-            raise InvalidSensorData("Invalid sensor data") from err
+        except (TypeError, KeyError) as error:
+            raise InvalidSensorData("Invalid sensor data") from error
 
         if ATTR_UPTIME in data:
             sensors[ATTR_UPTIME] = int(data[ATTR_UPTIME])
