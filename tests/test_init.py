@@ -173,7 +173,7 @@ async def test_api_error():
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
-            status=HTTPStatus.FORBIDDEN.value,
+            status=HTTPStatus.ACCEPTED.value,
         )
 
         options = ConnectionOptions(VALID_IP)
@@ -183,7 +183,7 @@ async def test_api_error():
             await nam.async_update()
         except ApiError as error:
             assert (
-                str(error.status) == "Invalid response from device 192.168.172.12: 403"
+                str(error.status) == "Invalid response from device 192.168.172.12: 202"
             )
 
     await session.close()
