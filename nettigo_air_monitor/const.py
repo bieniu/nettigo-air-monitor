@@ -3,7 +3,10 @@ from __future__ import annotations
 
 from typing import Final
 
+ATTR_CONFIG: Final[str] = "config"
 ATTR_DATA: Final[str] = "data"
+ATTR_OTA: Final[str] = "ota"
+ATTR_RESTART: Final[str] = "restart"
 ATTR_SENSOR_VALUES: Final[str] = "sensordatavalues"
 ATTR_UPTIME: Final[str] = "uptime"
 ATTR_VALUES: Final[str] = "values"
@@ -12,7 +15,10 @@ RETRIES: Final[int] = 4
 TIMEOUT: Final[int] = 5
 
 ENDPOINTS: Final[dict[str, str]] = {
+    ATTR_CONFIG: "http://{host}/config.json",
     ATTR_DATA: "http://{host}/data.json",
+    ATTR_OTA: "http://{host}/ota",
+    ATTR_RESTART: "http://{host}/reset",
     ATTR_VALUES: "http://{host}/values",
 }
 

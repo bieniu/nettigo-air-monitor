@@ -7,12 +7,14 @@ import re
 from http import HTTPStatus
 from typing import Any, cast
 
-from aiohttp import ClientSession
-from aiohttp.client_exceptions import ClientConnectorError
+from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from dacite import from_dict
 
 from .const import (
+    ATTR_CONFIG,
     ATTR_DATA,
+    ATTR_OTA,
+    ATTR_RESTART,
     ATTR_UPTIME,
     ATTR_VALUES,
     ENDPOINTS,
@@ -21,7 +23,8 @@ from .const import (
     RETRIES,
     TIMEOUT,
 )
-from .model import NAMSensors
+from .exceptions import ApiError, AuthFailed, CannotGetMac, InvalidSensorData
+from .model import ConnectionOptions, NAMSensors
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,11 +32,28 @@ _LOGGER = logging.getLogger(__name__)
 class NettigoAirMonitor:
     """Main class to perform Nettigo Air Monitor requests."""
 
-    def __init__(self, session: ClientSession, host: str) -> None:
+    def __init__(self, session: ClientSession, options: ConnectionOptions) -> None:
         """Initialize."""
         self._session = session
-        self._host = host
+        self.host = options.host
+        self._options = options
         self._software_version: str
+
+    @classmethod
+    async def create(
+        cls, session: ClientSession, options: ConnectionOptions
+    ) -> NettigoAirMonitor:
+        """Create a new device instance."""
+        instance = cls(session, options)
+        await instance.initialize()
+        return instance
+
+    async def initialize(self) -> None:
+        """Initialize."""
+        _LOGGER.debug("Initializing device %s", self.host)
+
+        url = self._construct_url(ATTR_CONFIG, host=self.host)
+        await self._async_http_request("get", url, retries=1)
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -72,46 +92,62 @@ class NettigoAirMonitor:
 
         return result
 
-    async def _async_get_data(self, url: str, use_json: bool = True) -> Any:
+    async def _async_http_request(
+        self, method: str, url: str, retries: int = RETRIES
+    ) -> Any:
         """Retrieve data from the device."""
         last_error = None
-        for retry in range(RETRIES):
+        for retry in range(retries):
             try:
-                resp = await self._session.get(url)
+                _LOGGER.debug("Requesting %s, method: %s", url, method)
+                resp = await self._session.request(
+                    method,
+                    url,
+                    raise_for_status=True,
+                    timeout=TIMEOUT,
+                    auth=self._options.auth,
+                )
+            except ClientResponseError as error:
+                if error.status == HTTPStatus.UNAUTHORIZED.value:
+                    raise AuthFailed("Authorization has failed") from error
+                raise ApiError(
+                    f"Invalid response from device {self.host}: {error.status}"
+                ) from error
             except ClientConnectorError as error:
                 _LOGGER.info(
-                    "Invalid response from device: %s, retry: %s", self._host, retry
+                    "Invalid response from device: %s, retry: %s", self.host, retry
                 )
                 last_error = error
             else:
                 _LOGGER.debug(
-                    "Data retrieved from %s, status: %s", self._host, resp.status
+                    "Data retrieved from %s, status: %s", self.host, resp.status
                 )
                 if resp.status != HTTPStatus.OK.value:
                     raise ApiError(
-                        f"Invalid response from device {self._host}: {resp.status}"
+                        f"Invalid response from device {self.host}: {resp.status}"
                     )
 
-                return await resp.json() if use_json else await resp.text()
+                return resp
 
             wait = TIMEOUT + retry
-            _LOGGER.debug("Waiting %s seconds for device %s", wait, self._host)
+            _LOGGER.debug("Waiting %s seconds for device %s", wait, self.host)
             await asyncio.sleep(wait)
 
         raise ApiError(str(last_error))
 
     async def async_update(self) -> NAMSensors:
         """Retrieve data from the device."""
-        url = self._construct_url(ATTR_DATA, host=self._host)
+        url = self._construct_url(ATTR_DATA, host=self.host)
 
-        data = await self._async_get_data(url)
+        resp = await self._async_http_request("get", url)
+        data = await resp.json()
 
         self._software_version = data["software_version"]
 
         try:
             sensors = self._parse_sensor_data(data["sensordatavalues"])
-        except (TypeError, KeyError) as err:
-            raise InvalidSensorData("Invalid sensor data") from err
+        except (TypeError, KeyError) as error:
+            raise InvalidSensorData("Invalid sensor data") from error
 
         if ATTR_UPTIME in data:
             sensors[ATTR_UPTIME] = int(data[ATTR_UPTIME])
@@ -120,8 +156,9 @@ class NettigoAirMonitor:
 
     async def async_get_mac_address(self) -> str:
         """Retrieve the device MAC address."""
-        url = self._construct_url(ATTR_VALUES, host=self._host)
-        data = await self._async_get_data(url, use_json=False)
+        url = self._construct_url(ATTR_VALUES, host=self.host)
+        resp = await self._async_http_request("get", url)
+        data = await resp.text()
 
         if not (mac := re.search(MAC_PATTERN, data)):
             raise CannotGetMac("Cannot get MAC address from device")
@@ -133,29 +170,12 @@ class NettigoAirMonitor:
         """Return software version."""
         return self._software_version
 
+    async def async_restart(self) -> None:
+        """Restart the device."""
+        url = self._construct_url(ATTR_RESTART, host=self.host)
+        await self._async_http_request("post", url, retries=1)
 
-class ApiError(Exception):
-    """Raised when request ended in error."""
-
-    def __init__(self, status: str) -> None:
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
-
-
-class CannotGetMac(Exception):
-    """Raised when cannot get device MAC address."""
-
-    def __init__(self, status: str) -> None:
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
-
-
-class InvalidSensorData(Exception):
-    """Raised when sensor data is invalid."""
-
-    def __init__(self, status: str) -> None:
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
+    async def async_ota_update(self) -> None:
+        """Trigger OTA update."""
+        url = self._construct_url(ATTR_OTA, host=self.host)
+        await self._async_http_request("post", url, retries=1)

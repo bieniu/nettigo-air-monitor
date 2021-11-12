@@ -2,6 +2,28 @@
 from dataclasses import dataclass
 from typing import Optional
 
+import aiohttp
+
+
+@dataclass
+class ConnectionOptions:
+    """Options for NAM."""
+
+    host: str
+    username: Optional[str] = None
+    password: Optional[str] = None
+    auth: Optional[aiohttp.BasicAuth] = None
+
+    def __post_init__(self) -> None:
+        """Call after initialization."""
+        if self.username is not None:
+            if self.password is None:
+                raise ValueError("Supply both username and password")
+
+            object.__setattr__(
+                self, "auth", aiohttp.BasicAuth(self.username, self.password)
+            )
+
 
 @dataclass(frozen=True)
 class NAMSensors:
