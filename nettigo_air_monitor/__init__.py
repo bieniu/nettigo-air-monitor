@@ -170,12 +170,12 @@ class NettigoAirMonitor:
         """Return software version."""
         return self._software_version
 
-    async def async_restart(self) -> bool:
+    async def async_restart(self) -> None:
         """Restart the device."""
         url = self._construct_url(ATTR_RESTART, host=self.host)
-        return await self._async_http_request("post", url, retries=1)
+        await self._async_http_request("post", url, retries=1)
 
-    async def async_ota_update(self) -> bool:
+    async def async_ota_update(self) -> None:
         """Trigger OTA update."""
         url = self._construct_url(ATTR_OTA, host=self.host)
-        return await self._async_http_request("post", url, retries=1)
+        await self._async_http_request("post", url, retries=1)
