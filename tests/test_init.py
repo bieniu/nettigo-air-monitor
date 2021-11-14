@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import aiohttp
 import pytest
-from aiohttp import ClientResponseError
+from aiohttp import ClientConnectorError, ClientResponseError
 from aioresponses import aioresponses
 
 from nettigo_air_monitor import (
@@ -34,7 +34,7 @@ async def test_valid_data():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"current_lang": "PL"},
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -57,6 +57,7 @@ async def test_valid_data():
     await session.close()
 
     assert nam.software_version == "NAMF-2020-36"
+    assert nam.config == {"current_lang": "PL"}
     assert result.bme280_humidity == 85.3
     assert result.bme280_pressure == 989
     assert result.bme280_temperature == 10.6
@@ -92,7 +93,8 @@ async def test_valid_data_with_auth():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload="{'current_lang': 'PL'}",
+            content_type="text/plain",
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -115,6 +117,7 @@ async def test_valid_data_with_auth():
     await session.close()
 
     assert nam.software_version == "NAMF-2020-36"
+    assert nam.config == {"current_lang": "PL"}
     assert result.bme280_humidity == 85.3
     assert result.bme280_pressure == 989
     assert result.bme280_temperature == 10.6
@@ -169,7 +172,7 @@ async def test_api_error():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": "true"},
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -189,42 +192,42 @@ async def test_api_error():
     await session.close()
 
 
-# @pytest.mark.asyncio
-# async def test_retry():
-#     """Test retry request."""
-#     session = aiohttp.ClientSession()
+@pytest.mark.asyncio
+async def test_retry():
+    """Test retry request."""
+    session = aiohttp.ClientSession()
 
-#     with aioresponses() as session_mock:
-#         session_mock.get(
-#             "http://192.168.172.12/config.json",
-#             payload={},
-#         )
-#         session_mock.get(
-#             "http://192.168.172.12/data.json",
-#             exception=ClientConnectorError(Mock(), Mock()),
-#         )
-#         session_mock.get(
-#             "http://192.168.172.12/data.json",
-#             exception=ClientConnectorError(Mock(), Mock()),
-#         )
-#         session_mock.get(
-#             "http://192.168.172.12/data.json",
-#             exception=ClientConnectorError(Mock(), Mock()),
-#         )
-#         session_mock.get(
-#             "http://192.168.172.12/data.json",
-#             exception=ClientConnectorError(Mock(), Mock()),
-#         )
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            payload={"www_basicauth_enabled": "true"},
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
 
-#         options = ConnectionOptions(VALID_IP)
-#         nam = await NettigoAirMonitor.create(session, options)
+        options = ConnectionOptions(VALID_IP)
+        nam = await NettigoAirMonitor.create(session, options)
 
-#         try:
-#             await nam.async_update()
-#         except ApiError as error:
-#             assert "Cannot connect to host" in str(error)
+        try:
+            await nam.async_update()
+        except ApiError as error:
+            assert "Cannot connect to host" in str(error)
 
-#     await session.close()
+    await session.close()
 
 
 @pytest.mark.asyncio
@@ -238,7 +241,7 @@ async def test_invalid_sensor_data():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": "true"},
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -263,7 +266,7 @@ async def test_cannot_get_mac():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": "true"},
         )
         session_mock.get(
             "http://192.168.172.12/values",
@@ -300,7 +303,7 @@ async def test_post_methods(method, endpoint):
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": "true"},
         )
         session_mock.post(f"http://192.168.172.12/{endpoint}")
 

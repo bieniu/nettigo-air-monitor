@@ -7,7 +7,12 @@ import re
 from http import HTTPStatus
 from typing import Any, cast
 
-from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
+from aiohttp import (
+    ClientConnectorError,
+    ClientResponseError,
+    ClientSession,
+    ContentTypeError,
+)
 from dacite import from_dict
 
 from .const import (
@@ -38,6 +43,7 @@ class NettigoAirMonitor:
         self.host = options.host
         self._options = options
         self._software_version: str
+        self._config: dict[str, Any] = {}
 
     @classmethod
     async def create(
@@ -53,7 +59,13 @@ class NettigoAirMonitor:
         _LOGGER.debug("Initializing device %s", self.host)
 
         url = self._construct_url(ATTR_CONFIG, host=self.host)
-        await self._async_http_request("get", url, retries=1)
+        resp = await self._async_http_request("get", url, retries=1)
+        try:
+            self._config = await resp.json()
+        except ContentTypeError:
+            # The old version of the firmware returns config.json with
+            # the text/plain content type.
+            self._config = await resp.json(content_type="text/plain")
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -164,6 +176,11 @@ class NettigoAirMonitor:
             raise CannotGetMac("Cannot get MAC address from device")
 
         return cast(str, mac[0])
+
+    @property
+    def config(self) -> dict[str, Any]:
+        """Return the device config."""
+        return self._config
 
     @property
     def software_version(self) -> str:
