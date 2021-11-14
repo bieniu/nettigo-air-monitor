@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import aiohttp
 import pytest
-from aiohttp import ClientResponseError
+from aiohttp import ClientConnectorError, ClientResponseError
 from aioresponses import aioresponses
 
 from nettigo_air_monitor import (
@@ -189,42 +189,42 @@ async def test_api_error():
     await session.close()
 
 
-# @pytest.mark.asyncio
-# async def test_retry():
-#     """Test retry request."""
-#     session = aiohttp.ClientSession()
+@pytest.mark.asyncio
+async def test_retry():
+    """Test retry request."""
+    session = aiohttp.ClientSession()
 
-#     with aioresponses() as session_mock:
-#         session_mock.get(
-#             "http://192.168.172.12/config.json",
-#             payload={},
-#         )
-#         session_mock.get(
-#             "http://192.168.172.12/data.json",
-#             exception=ClientConnectorError(Mock(), Mock()),
-#         )
-#         session_mock.get(
-#             "http://192.168.172.12/data.json",
-#             exception=ClientConnectorError(Mock(), Mock()),
-#         )
-#         session_mock.get(
-#             "http://192.168.172.12/data.json",
-#             exception=ClientConnectorError(Mock(), Mock()),
-#         )
-#         session_mock.get(
-#             "http://192.168.172.12/data.json",
-#             exception=ClientConnectorError(Mock(), Mock()),
-#         )
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            payload={},
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
 
-#         options = ConnectionOptions(VALID_IP)
-#         nam = await NettigoAirMonitor.create(session, options)
+        options = ConnectionOptions(VALID_IP)
+        nam = await NettigoAirMonitor.create(session, options)
 
-#         try:
-#             await nam.async_update()
-#         except ApiError as error:
-#             assert "Cannot connect to host" in str(error)
+        try:
+            await nam.async_update()
+        except ApiError as error:
+            assert "Cannot connect to host" in str(error)
 
-#     await session.close()
+    await session.close()
 
 
 @pytest.mark.asyncio

@@ -104,7 +104,6 @@ class NettigoAirMonitor:
                     method,
                     url,
                     raise_for_status=True,
-                    timeout=TIMEOUT,
                     auth=self._options.auth,
                 )
             except ClientResponseError as error:
