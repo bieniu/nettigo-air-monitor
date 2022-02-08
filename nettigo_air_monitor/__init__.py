@@ -11,7 +11,6 @@ from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from dacite import from_dict
 
 from .const import (
-    ATTR_CONFIG,
     ATTR_DATA,
     ATTR_OTA,
     ATTR_RESTART,
@@ -38,6 +37,7 @@ class NettigoAirMonitor:
         self.host = options.host
         self._options = options
         self._software_version: str
+        self._mac_address: str
 
     @classmethod
     async def create(
@@ -52,8 +52,7 @@ class NettigoAirMonitor:
         """Initialize."""
         _LOGGER.debug("Initializing device %s", self.host)
 
-        url = self._construct_url(ATTR_CONFIG, host=self.host)
-        await self._async_http_request("get", url, retries=1)
+        self._mac_address = await self.async_get_mac_address(self.host)
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -153,9 +152,9 @@ class NettigoAirMonitor:
 
         return from_dict(data_class=NAMSensors, data=sensors)
 
-    async def async_get_mac_address(self) -> str:
+    async def async_get_mac_address(self, host: str) -> str:
         """Retrieve the device MAC address."""
-        url = self._construct_url(ATTR_VALUES, host=self.host)
+        url = self._construct_url(ATTR_VALUES, host=host)
         resp = await self._async_http_request("get", url)
         data = await resp.text()
 
@@ -168,6 +167,11 @@ class NettigoAirMonitor:
     def software_version(self) -> str:
         """Return software version."""
         return self._software_version
+
+    @property
+    def mac_address(self) -> str:
+        """Return device MAC address."""
+        return self._mac_address
 
     async def async_restart(self) -> None:
         """Restart the device."""

@@ -15,7 +15,6 @@ RETRIES: Final[int] = 4
 TIMEOUT: Final[int] = 5
 
 ENDPOINTS: Final[dict[str, str]] = {
-    ATTR_CONFIG: "http://{host}/config.json",
     ATTR_DATA: "http://{host}/data.json",
     ATTR_OTA: "http://{host}/ota",
     ATTR_RESTART: "http://{host}/reset",
