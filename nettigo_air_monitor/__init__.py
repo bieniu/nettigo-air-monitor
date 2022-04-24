@@ -22,6 +22,7 @@ from .const import (
     RENAME_KEY_MAP,
     RETRIES,
     TIMEOUT,
+    VALUES_TO_ROUND,
 )
 from .exceptions import ApiError, AuthFailed, CannotGetMac, InvalidSensorData
 from .model import ConnectionOptions, NAMSensors
@@ -70,20 +71,7 @@ class NettigoAirMonitor:
         for key, value in result.items():
             if "pressure" in key and value is not None:
                 result[key] = round(value / 100)
-            if (
-                key
-                in (
-                    "conc_co2_ppm",
-                    "sds_p1",
-                    "sds_p2",
-                    "sps30_p0",
-                    "sps30_p1",
-                    "sps30_p2",
-                    "sps30_p4",
-                    "signal",
-                )
-                and value is not None
-            ):
+            if key in VALUES_TO_ROUND and value is not None:
                 result[key] = round(value)
 
         for old_key, new_key in RENAME_KEY_MAP:
