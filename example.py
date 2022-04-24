@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.DEBUG)
 async def main():
     """Main."""
     websession = ClientSession()
-    options = ConnectionOptions(host="nam")
+    options = ConnectionOptions(host="nam", username="user", password="password")
     nam = await NettigoAirMonitor.create(websession, options)
 
     try:
