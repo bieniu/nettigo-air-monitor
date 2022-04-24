@@ -15,6 +15,10 @@ class ApiError(NamError):
     """Raised when request ended in error."""
 
 
+class ConnError(NamError):
+    """Raised when request ended in error."""
+
+
 class AuthFailed(NamError):
     """Raised if auth fails."""
 
