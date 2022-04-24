@@ -45,13 +45,10 @@ class NettigoAirMonitor:
     ) -> NettigoAirMonitor:
         """Create a new device instance."""
         instance = cls(session, options)
-        await instance.initialize()
         return instance
 
-    async def initialize(self) -> None:
-        """Initialize."""
-        _LOGGER.debug("Initializing device %s", self.host)
-
+    async def async_check_auth(self) -> None:
+        """Check if device required auth."""
         url = self._construct_url(ATTR_CONFIG, host=self.host)
         await self._async_http_request("get", url, retries=1)
 

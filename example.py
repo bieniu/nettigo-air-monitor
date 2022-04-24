@@ -20,12 +20,13 @@ logging.basicConfig(level=logging.DEBUG)
 async def main():
     """Main."""
     websession = ClientSession()
-    options = ConnectionOptions(host="nam", username="user", password="password")
+    options = ConnectionOptions(host="nam")
+    nam = await NettigoAirMonitor.create(websession, options)
+
     try:
-        nam = await NettigoAirMonitor.create(websession, options)
         async with async_timeout.timeout(30):
-            data = await nam.async_update()
             mac = await nam.async_get_mac_address()
+            data = await nam.async_update()
     except (
         ApiError,
         AuthFailed,
@@ -36,8 +37,8 @@ async def main():
     ) as error:
         print(f"Error: {error}")
     else:
-        print(f"Firmware: {nam.software_version}")
         print(f"MAC address: {mac}")
+        print(f"Firmware: {nam.software_version}")
         print(f"Data: {data}")
 
     await websession.close()
