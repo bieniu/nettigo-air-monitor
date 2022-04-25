@@ -190,26 +190,14 @@ async def test_api_error():
 
 
 @pytest.mark.asyncio
-async def test_retry():
-    """Test retry request."""
+async def test_cache_empty():
+    """Test error request when cache is empty."""
     session = aiohttp.ClientSession()
 
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
             payload={},
-        )
-        session_mock.get(
-            "http://192.168.172.12/data.json",
-            exception=ClientConnectorError(Mock(), Mock()),
-        )
-        session_mock.get(
-            "http://192.168.172.12/data.json",
-            exception=ClientConnectorError(Mock(), Mock()),
-        )
-        session_mock.get(
-            "http://192.168.172.12/data.json",
-            exception=ClientConnectorError(Mock(), Mock()),
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -222,7 +210,7 @@ async def test_retry():
         try:
             await nam.async_update()
         except ApiError as error:
-            assert "Cannot connect to host" in str(error)
+            assert str(error) == "The device 192.168.172.12 is not responding"
 
     await session.close()
 

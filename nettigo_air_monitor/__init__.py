@@ -123,7 +123,7 @@ class NettigoAirMonitor:
         try:
             resp = await self._async_http_request("get", url)
         except NotRespondingError as error:
-            if self._update_errors <= RESPONSES_FROM_CACHE and not self._last_data:
+            if self._update_errors <= RESPONSES_FROM_CACHE and self._last_data:
                 _LOGGER.info(
                     "Using the cached data because the device %s is not responding",
                     self.host,
