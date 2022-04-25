@@ -11,7 +11,7 @@ ATTR_SENSOR_VALUES: Final[str] = "sensordatavalues"
 ATTR_UPTIME: Final[str] = "uptime"
 ATTR_VALUES: Final[str] = "values"
 
-RESPONSES_FROM_CACHE: Final[int] = 4
+RESPONSES_FROM_CACHE: Final[int] = 3
 
 VALUES_TO_ROUND: Final[list[str]] = [
     "conc_co2_ppm",

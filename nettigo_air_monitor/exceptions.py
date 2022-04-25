@@ -15,8 +15,8 @@ class ApiError(NamError):
     """Raised when request ended in error."""
 
 
-class ConnError(NamError):
-    """Raised when request ended in error."""
+class NotRespondingError(NamError):
+    """Raised when device is not responding."""
 
 
 class AuthFailed(NamError):
