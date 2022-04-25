@@ -22,7 +22,13 @@ from .const import (
     RESPONSES_FROM_CACHE,
     VALUES_TO_ROUND,
 )
-from .exceptions import ApiError, AuthFailed, CannotGetMac, NotRespondingError, InvalidSensorData
+from .exceptions import (
+    ApiError,
+    AuthFailed,
+    CannotGetMac,
+    InvalidSensorData,
+    NotRespondingError,
+)
 from .model import ConnectionOptions, NAMSensors
 
 _LOGGER = logging.getLogger(__name__)
@@ -98,7 +104,9 @@ class NettigoAirMonitor:
             ) from error
         except ClientConnectorError as error:
             _LOGGER.info("Invalid response from device: %s", self.host)
-            raise NotRespondingError(f"The device {self.host} is not responding") from error
+            raise NotRespondingError(
+                f"The device {self.host} is not responding"
+            ) from error
         else:
             _LOGGER.debug("Data retrieved from %s, status: %s", self.host, resp.status)
             if resp.status != HTTPStatus.OK.value:
@@ -116,7 +124,10 @@ class NettigoAirMonitor:
             resp = await self._async_http_request("get", url)
         except NotRespondingError as error:
             if self._update_errors <= RESPONSES_FROM_CACHE and not self._last_data:
-                _LOGGER.info("Using the cached data because the device %s is not responding", self.host)
+                _LOGGER.info(
+                    "Using the cached data because the device %s is not responding",
+                    self.host,
+                )
                 data = self._last_data
                 self._update_errors += 1
             else:
