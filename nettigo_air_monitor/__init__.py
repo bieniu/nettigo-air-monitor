@@ -40,7 +40,7 @@ class NettigoAirMonitor:
     def __init__(self, session: ClientSession, options: ConnectionOptions) -> None:
         """Initialize."""
         self.host = options.host
-        self._last_data: NAMSensors | None = None
+        self._last_data: dict[str, Any] = {}
         self._options = options
         self._session = session
         self._software_version: str
