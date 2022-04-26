@@ -190,26 +190,14 @@ async def test_api_error():
 
 
 @pytest.mark.asyncio
-async def test_retry():
-    """Test retry request."""
+async def test_cache_empty():
+    """Test error request when cache is empty."""
     session = aiohttp.ClientSession()
 
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
             payload={},
-        )
-        session_mock.get(
-            "http://192.168.172.12/data.json",
-            exception=ClientConnectorError(Mock(), Mock()),
-        )
-        session_mock.get(
-            "http://192.168.172.12/data.json",
-            exception=ClientConnectorError(Mock(), Mock()),
-        )
-        session_mock.get(
-            "http://192.168.172.12/data.json",
-            exception=ClientConnectorError(Mock(), Mock()),
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -222,9 +210,65 @@ async def test_retry():
         try:
             await nam.async_update()
         except ApiError as error:
-            assert "Cannot connect to host" in str(error)
+            assert str(error) == "The device 192.168.172.12 is not responding"
 
     await session.close()
+
+
+@pytest.mark.asyncio
+async def test_data_cached():
+    """Test error request when the data is cached."""
+    with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
+        data = json.load(file)
+
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            payload={},
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            payload=data,
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            exception=ClientConnectorError(Mock(), Mock()),
+        )
+
+        options = ConnectionOptions(VALID_IP)
+        nam = await NettigoAirMonitor.create(session, options)
+
+        await nam.async_update()
+
+        result = await nam.async_update()
+
+    await session.close()
+
+    assert nam.software_version == "NAMF-2020-36"
+    assert result.bme280_humidity == 85.3
+    assert result.bme280_pressure == 989
+    assert result.bme280_temperature == 10.6
+    assert result.bmp180_pressure == 997
+    assert result.bmp180_temperature == 10.8
+    assert result.bmp280_pressure == 1022
+    assert result.bmp280_temperature == 5.6
+    assert result.dht22_humidity == 46.2
+    assert result.dht22_temperature == 6.3
+    assert result.heca_humidity == 59.7
+    assert result.heca_temperature == 15.1
+    assert result.mhz14a_carbon_dioxide == 865
+    assert result.sds011_p1 == 23
+    assert result.sds011_p2 == 20
+    assert result.sht3x_humidity == 34.7
+    assert result.sht3x_temperature == 6.3
+    assert result.signal == -85
+    assert result.sps30_p0 == 31
+    assert result.sps30_p1 == 21
+    assert result.sps30_p2 == 34
+    assert result.sps30_p4 == 25
+    assert result.uptime == 45632
 
 
 @pytest.mark.asyncio
