@@ -37,7 +37,7 @@ async def main():
     options = ConnectionOptions(host="nam", username="user", password="password")
     try:
         nam = await NettigoAirMonitor.create(websession, options)
-        async with async_timeout.timeout(30):
+        async with async_timeout.timeout(10):
             data = await nam.async_update()
             mac = await nam.async_get_mac_address()
     except (
@@ -60,6 +60,7 @@ async def main():
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main())
 loop.close()
+
 ```
 
 [releases]: https://github.com/bieniu/nettigo-air-monitor/releases
