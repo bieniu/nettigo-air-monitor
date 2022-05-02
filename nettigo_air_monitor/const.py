@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Final
 
+from aiohttp.client import ClientTimeout
+
 ATTR_CONFIG: Final[str] = "config"
 ATTR_DATA: Final[str] = "data"
 ATTR_OTA: Final[str] = "ota"
@@ -10,6 +12,8 @@ ATTR_RESTART: Final[str] = "restart"
 ATTR_SENSOR_VALUES: Final[str] = "sensordatavalues"
 ATTR_UPTIME: Final[str] = "uptime"
 ATTR_VALUES: Final[str] = "values"
+
+DEFAULT_TIMEOUT: Final[ClientTimeout] = ClientTimeout(total=5)
 
 RESPONSES_FROM_CACHE: Final[int] = 3
 
