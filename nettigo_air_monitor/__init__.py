@@ -1,12 +1,14 @@
 """Python wrapper for getting air quality data from Nettigo Air Monitor devices."""
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from http import HTTPStatus
 from typing import Any, cast
 
-from aiohttp import ClientResponseError, ClientSession, ServerTimeoutError
+import requests
+from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from dacite import from_dict
 
 from .const import (
@@ -104,7 +106,20 @@ class NettigoAirMonitor:
             raise ApiError(
                 f"Invalid response from device {self.host}: {error.status}"
             ) from error
-        except ServerTimeoutError as error:
+        except requests.exceptions.Timeout as error:
+            _LOGGER.error("requests.exceptions.Timeout")
+            _LOGGER.info("Invalid response from device: %s", self.host)
+            raise NotRespondingError(
+                f"The device {self.host} is not responding"
+            ) from error
+        except asyncio.TimeoutError as error:
+            _LOGGER.error("asyncio.TimeoutError")
+            _LOGGER.info("Invalid response from device: %s", self.host)
+            raise NotRespondingError(
+                f"The device {self.host} is not responding"
+            ) from error
+        except ClientConnectorError as error:
+            _LOGGER.error("ClientConnectorError")
             _LOGGER.info("Invalid response from device: %s", self.host)
             raise NotRespondingError(
                 f"The device {self.host} is not responding"
