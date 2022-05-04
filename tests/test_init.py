@@ -1,11 +1,12 @@
 """Tests for nettigo package."""
+import asyncio
 import json
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 
 import aiohttp
 import pytest
-from aiohttp import ClientResponseError, ServerTimeoutError
+from aiohttp import ClientResponseError
 from aioresponses import aioresponses
 
 from nettigo_air_monitor import (
@@ -201,7 +202,7 @@ async def test_cache_empty():
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
-            exception=ServerTimeoutError(Mock(), Mock()),
+            exception=asyncio.TimeoutError(Mock(), Mock()),
         )
 
         options = ConnectionOptions(VALID_IP)
@@ -234,7 +235,7 @@ async def test_data_cached():
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
-            exception=ServerTimeoutError(Mock(), Mock()),
+            exception=asyncio.TimeoutError(Mock(), Mock()),
         )
 
         options = ConnectionOptions(VALID_IP)
