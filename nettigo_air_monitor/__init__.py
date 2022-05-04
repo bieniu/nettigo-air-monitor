@@ -7,7 +7,6 @@ import re
 from http import HTTPStatus
 from typing import Any, cast
 
-import requests
 from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from dacite import from_dict
 
@@ -106,20 +105,7 @@ class NettigoAirMonitor:
             raise ApiError(
                 f"Invalid response from device {self.host}: {error.status}"
             ) from error
-        except requests.exceptions.Timeout as error:
-            _LOGGER.error("requests.exceptions.Timeout")
-            _LOGGER.info("Invalid response from device: %s", self.host)
-            raise NotRespondingError(
-                f"The device {self.host} is not responding"
-            ) from error
-        except asyncio.TimeoutError as error:
-            _LOGGER.error("asyncio.TimeoutError")
-            _LOGGER.info("Invalid response from device: %s", self.host)
-            raise NotRespondingError(
-                f"The device {self.host} is not responding"
-            ) from error
-        except ClientConnectorError as error:
-            _LOGGER.error("ClientConnectorError")
+        except (ClientConnectorError, asyncio.TimeoutError) as error:
             _LOGGER.info("Invalid response from device: %s", self.host)
             raise NotRespondingError(
                 f"The device {self.host} is not responding"
