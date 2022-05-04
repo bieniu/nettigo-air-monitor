@@ -163,6 +163,28 @@ async def test_auth_failed():
 
 
 @pytest.mark.asyncio
+async def test_http_404_code():
+    """Test request ends with error."""
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            exception=ClientResponseError(
+                Mock(), Mock(), code=HTTPStatus.NOT_FOUND.value
+            ),
+        )
+
+        options = ConnectionOptions(VALID_IP, "user", "pass")
+        try:
+            await NettigoAirMonitor.create(session, options)
+        except ApiError as error:
+            assert str(error) == "Invalid response from device 192.168.172.12: 404"
+
+    await session.close()
+
+
+@pytest.mark.asyncio
 async def test_api_error():
     """Test API error."""
     session = aiohttp.ClientSession()
