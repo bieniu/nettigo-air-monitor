@@ -13,7 +13,7 @@ with open("requirements-test.txt", encoding="utf-8") as file:
 
 setup(
     name="nettigo_air_monitor",
-    version="1.2.2",
+    version="1.2.3",
     author="Maciej Bieniek",
     description="Python wrapper for getting air quality data from Nettigo Air Monitor devices.",
     long_description=long_description,

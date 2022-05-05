@@ -1,6 +1,7 @@
 """Python wrapper for getting air quality data from Nettigo Air Monitor devices."""
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from http import HTTPStatus
@@ -16,6 +17,7 @@ from .const import (
     ATTR_RESTART,
     ATTR_UPTIME,
     ATTR_VALUES,
+    DEFAULT_TIMEOUT,
     ENDPOINTS,
     MAC_PATTERN,
     RENAME_KEY_MAP,
@@ -95,6 +97,7 @@ class NettigoAirMonitor:
                 url,
                 raise_for_status=True,
                 auth=self._options.auth,
+                timeout=DEFAULT_TIMEOUT,
             )
         except ClientResponseError as error:
             if error.status == HTTPStatus.UNAUTHORIZED.value:
@@ -102,7 +105,7 @@ class NettigoAirMonitor:
             raise ApiError(
                 f"Invalid response from device {self.host}: {error.status}"
             ) from error
-        except ClientConnectorError as error:
+        except (ClientConnectorError, asyncio.TimeoutError) as error:
             _LOGGER.info("Invalid response from device: %s", self.host)
             raise NotRespondingError(
                 f"The device {self.host} is not responding"
