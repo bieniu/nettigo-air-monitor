@@ -62,7 +62,11 @@ class NettigoAirMonitor:
         _LOGGER.debug("Initializing device %s", self.host)
 
         url = self._construct_url(ATTR_CONFIG, host=self.host)
-        await self._async_http_request("get", url)
+
+        try:
+            await self._async_http_request("get", url)
+        except NotRespondingError as error:
+            raise ApiError(error.status) from error
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -154,7 +158,12 @@ class NettigoAirMonitor:
     async def async_get_mac_address(self) -> str:
         """Retrieve the device MAC address."""
         url = self._construct_url(ATTR_VALUES, host=self.host)
-        resp = await self._async_http_request("get", url)
+
+        try:
+            resp = await self._async_http_request("get", url)
+        except NotRespondingError as error:
+            raise ApiError(error.status) from error
+
         data = await resp.text()
 
         if not (mac := re.search(MAC_PATTERN, data)):
@@ -170,9 +179,17 @@ class NettigoAirMonitor:
     async def async_restart(self) -> None:
         """Restart the device."""
         url = self._construct_url(ATTR_RESTART, host=self.host)
-        await self._async_http_request("post", url)
+
+        try:
+            await self._async_http_request("post", url)
+        except NotRespondingError as error:
+            raise ApiError(error.status) from error
 
     async def async_ota_update(self) -> None:
         """Trigger OTA update."""
         url = self._construct_url(ATTR_OTA, host=self.host)
-        await self._async_http_request("post", url)
+
+        try:
+            await self._async_http_request("post", url)
+        except NotRespondingError as error:
+            raise ApiError(error.status) from error
