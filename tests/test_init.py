@@ -348,6 +348,52 @@ async def test_cannot_get_mac():
 
 
 @pytest.mark.asyncio
+async def test_init_device_not_repond():
+    """Test init when device is not responding."""
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            exception=asyncio.TimeoutError(Mock(), Mock()),
+        )
+        options = ConnectionOptions(VALID_IP)
+
+        try:
+            await NettigoAirMonitor.create(session, options)
+        except ApiError as error:
+            assert str(error.status) == "The device 192.168.172.12 is not responding"
+
+    await session.close()
+
+
+@pytest.mark.asyncio
+async def test_get_ma_device_not_repond():
+    """Test get_mac when device is not responding."""
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            payload={},
+        )
+        session_mock.get(
+            "http://192.168.172.12/values",
+            exception=asyncio.TimeoutError(Mock(), Mock()),
+        )
+        options = ConnectionOptions(VALID_IP)
+
+        nam = await NettigoAirMonitor.create(session, options)
+
+        try:
+            await nam.async_get_mac_address()
+        except ApiError as error:
+            assert str(error.status) == "The device 192.168.172.12 is not responding"
+
+    await session.close()
+
+
+@pytest.mark.asyncio
 async def test_username_without_password():
     """Test error when username is provided without password."""
     try:
@@ -384,5 +430,36 @@ async def test_post_methods(method, endpoint):
         assert mock_request.call_count == 1
         assert mock_request.call_args[0][0] == "post"
         assert mock_request.call_args[0][1] == f"http://192.168.172.12/{endpoint}"
+
+    await session.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "method,endpoint", [("async_restart", "reset"), ("async_ota_update", "ota")]
+)
+async def test_post_methods_fail(method, endpoint):
+    """Test fail of the post methods."""
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            payload={},
+        )
+        session_mock.post(
+            f"http://192.168.172.12/{endpoint}",
+            exception=asyncio.TimeoutError(Mock(), Mock()),
+        )
+
+        options = ConnectionOptions(VALID_IP)
+        nam = await NettigoAirMonitor.create(session, options)
+
+        method_to_call = getattr(nam, method)
+
+        try:
+            await method_to_call()
+        except ApiError as error:
+            assert str(error.status) == "The device 192.168.172.12 is not responding"
 
     await session.close()
