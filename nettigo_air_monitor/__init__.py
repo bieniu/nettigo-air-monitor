@@ -47,6 +47,7 @@ class NettigoAirMonitor:
         self._session = session
         self._software_version: str
         self._update_errors: int = 0
+        self._auth_enabled: bool = False
 
     @classmethod
     async def create(
@@ -64,9 +65,15 @@ class NettigoAirMonitor:
         url = self._construct_url(ATTR_CONFIG, host=self.host)
 
         try:
-            await self._async_http_request("get", url)
+            resp = await self._async_http_request("get", url)
         except NotRespondingError as error:
             raise ApiError(error.status) from error
+        except AuthFailed:
+            self._auth_enabled = True
+        else:
+            config = await resp.json()
+            self._auth_enabled = config["www_basicauth_enabled"]
+            self._software_version = config["SOFTWARE_VERSION"]
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -171,10 +178,24 @@ class NettigoAirMonitor:
 
         return cast(str, mac[0])
 
+    async def async_check_credentials(self):
+        """Request config.json to check credentials."""
+        url = self._construct_url(ATTR_CONFIG, host=self.host)
+
+        try:
+            await self._async_http_request("get", url)
+        except NotRespondingError as error:
+            raise ApiError(error.status) from error
+
     @property
     def software_version(self) -> str:
         """Return software version."""
         return self._software_version
+
+    @property
+    def auth_enabled(self) -> bool:
+        """Return True if basic auth is enabled."""
+        return self._auth_enabled
 
     async def async_restart(self) -> None:
         """Restart the device."""
