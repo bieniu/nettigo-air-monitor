@@ -62,18 +62,15 @@ class NettigoAirMonitor:
         """Initialize."""
         _LOGGER.debug("Initializing device %s", self.host)
 
-        url = self._construct_url(ATTR_CONFIG, host=self.host)
-
         try:
-            resp = await self._async_http_request("get", url)
+            config = await self.async_check_credentials()
         except NotRespondingError as error:
             raise ApiError(error.status) from error
         except AuthFailed:
             self._auth_enabled = True
         else:
-            config = await resp.json()
             self._auth_enabled = config["www_basicauth_enabled"]
-            self._software_version = config["SOFTWARE_VERSION"]
+            self._software_version = config.get("SOFTWARE_VERSION", "")
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -183,9 +180,11 @@ class NettigoAirMonitor:
         url = self._construct_url(ATTR_CONFIG, host=self.host)
 
         try:
-            await self._async_http_request("get", url)
+            resp = await self._async_http_request("get", url)
         except NotRespondingError as error:
             raise ApiError(error.status) from error
+
+        return await resp.json()
 
     @property
     def software_version(self) -> str:
