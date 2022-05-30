@@ -5,7 +5,7 @@ import asyncio
 import logging
 import re
 from http import HTTPStatus
-from typing import Any, cast
+from typing import Any
 
 from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from dacite import from_dict
@@ -47,6 +47,7 @@ class NettigoAirMonitor:
         self._session = session
         self._software_version: str
         self._update_errors: int = 0
+        self._auth_enabled: bool = False
 
     @classmethod
     async def create(
@@ -61,12 +62,13 @@ class NettigoAirMonitor:
         """Initialize."""
         _LOGGER.debug("Initializing device %s", self.host)
 
-        url = self._construct_url(ATTR_CONFIG, host=self.host)
-
         try:
-            await self._async_http_request("get", url)
-        except NotRespondingError as error:
-            raise ApiError(error.status) from error
+            config = await self.async_check_credentials()
+        except AuthFailed:
+            self._auth_enabled = True
+        else:
+            self._auth_enabled = config["www_basicauth_enabled"]
+            self._software_version = config.get("SOFTWARE_VERSION", "")
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -169,12 +171,28 @@ class NettigoAirMonitor:
         if not (mac := re.search(MAC_PATTERN, data)):
             raise CannotGetMac("Cannot get MAC address from device")
 
-        return cast(str, mac[0])
+        return mac[0]
+
+    async def async_check_credentials(self) -> Any:
+        """Request config.json to check credentials."""
+        url = self._construct_url(ATTR_CONFIG, host=self.host)
+
+        try:
+            resp = await self._async_http_request("get", url)
+        except NotRespondingError as error:
+            raise ApiError(error.status) from error
+
+        return await resp.json()
 
     @property
     def software_version(self) -> str:
         """Return software version."""
         return self._software_version
+
+    @property
+    def auth_enabled(self) -> bool:
+        """Return True if basic auth is enabled."""
+        return self._auth_enabled
 
     async def async_restart(self) -> None:
         """Restart the device."""

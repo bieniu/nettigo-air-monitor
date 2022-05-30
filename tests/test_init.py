@@ -35,7 +35,7 @@ async def test_valid_data():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": False},
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -93,7 +93,7 @@ async def test_valid_data_with_auth():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": True},
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -116,6 +116,7 @@ async def test_valid_data_with_auth():
     await session.close()
 
     assert nam.software_version == "NAMF-2020-36"
+    assert nam.auth_enabled is True
     assert result.bme280_humidity == 85.3
     assert result.bme280_pressure == 989
     assert result.bme280_temperature == 10.6
@@ -149,8 +150,27 @@ async def test_auth_failed():
         session_mock.get(
             "http://192.168.172.12/config.json",
             exception=ClientResponseError(
-                Mock(), Mock(), code=HTTPStatus.UNAUTHORIZED.value
+                Mock(), Mock(), status=HTTPStatus.UNAUTHORIZED.value
             ),
+        )
+
+        options = ConnectionOptions(VALID_IP, "user", "pass")
+        try:
+            await NettigoAirMonitor.create(session, options)
+        except AuthFailed as error:
+            assert str(error) == "Authorization has failed"
+
+    await session.close()
+
+
+@pytest.mark.asyncio
+async def test_auth_enabled():
+    """Test auth enabled."""
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json", payload={"www_basicauth_enabled": True}
         )
 
         options = ConnectionOptions(VALID_IP, "user", "pass")
@@ -171,7 +191,7 @@ async def test_http_404_code():
         session_mock.get(
             "http://192.168.172.12/config.json",
             exception=ClientResponseError(
-                Mock(), Mock(), code=HTTPStatus.NOT_FOUND.value
+                Mock(), Mock(), status=HTTPStatus.NOT_FOUND.value
             ),
         )
 
@@ -192,7 +212,7 @@ async def test_api_error():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": False},
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -220,7 +240,7 @@ async def test_cache_empty():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": False},
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -249,7 +269,7 @@ async def test_data_cached():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": False},
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -305,7 +325,7 @@ async def test_invalid_sensor_data():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": False},
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
@@ -330,7 +350,7 @@ async def test_cannot_get_mac():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": False},
         )
         session_mock.get(
             "http://192.168.172.12/values",
@@ -375,7 +395,7 @@ async def test_get_ma_device_not_repond():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": False},
         )
         session_mock.get(
             "http://192.168.172.12/values",
@@ -413,7 +433,7 @@ async def test_post_methods(method, endpoint):
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": False},
         )
         session_mock.post(f"http://192.168.172.12/{endpoint}")
 
@@ -445,7 +465,7 @@ async def test_post_methods_fail(method, endpoint):
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            payload={},
+            payload={"www_basicauth_enabled": False},
         )
         session_mock.post(
             f"http://192.168.172.12/{endpoint}",
