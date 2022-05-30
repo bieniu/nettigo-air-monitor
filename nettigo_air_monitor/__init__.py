@@ -5,7 +5,7 @@ import asyncio
 import logging
 import re
 from http import HTTPStatus
-from typing import Any, cast
+from typing import Any
 
 from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from dacite import from_dict
@@ -171,9 +171,9 @@ class NettigoAirMonitor:
         if not (mac := re.search(MAC_PATTERN, data)):
             raise CannotGetMac("Cannot get MAC address from device")
 
-        return cast(str, mac[0])
+        return mac[0]
 
-    async def async_check_credentials(self):
+    async def async_check_credentials(self) -> Any:
         """Request config.json to check credentials."""
         url = self._construct_url(ATTR_CONFIG, host=self.host)
 
