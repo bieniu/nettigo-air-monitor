@@ -64,8 +64,6 @@ class NettigoAirMonitor:
 
         try:
             config = await self.async_check_credentials()
-        except NotRespondingError as error:
-            raise ApiError(error.status) from error
         except AuthFailed:
             self._auth_enabled = True
         else:
