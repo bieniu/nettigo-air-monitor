@@ -72,6 +72,7 @@ async def test_valid_data():
     assert result.mhz14a_carbon_dioxide == 865
     assert result.sds011_p1 == 23
     assert result.sds011_p2 == 20
+    assert result.sds011_caqi == 34
     assert result.sht3x_humidity == 34.7
     assert result.sht3x_temperature == 6.3
     assert result.signal == -85
@@ -79,6 +80,7 @@ async def test_valid_data():
     assert result.sps30_p1 == 21
     assert result.sps30_p2 == 34
     assert result.sps30_p4 == 25
+    assert result.sps30_caqi == 54
     assert result.uptime == 45632
 
 
