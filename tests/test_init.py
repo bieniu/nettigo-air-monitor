@@ -73,6 +73,7 @@ async def test_valid_data():
     assert result.sds011_p1 == 23
     assert result.sds011_p2 == 20
     assert result.sds011_caqi == 34
+    assert result.sds011_caqi_level == "low"
     assert result.sht3x_humidity == 34.7
     assert result.sht3x_temperature == 6.3
     assert result.signal == -85
@@ -81,7 +82,46 @@ async def test_valid_data():
     assert result.sps30_p2 == 34
     assert result.sps30_p4 == 25
     assert result.sps30_caqi == 54
+    assert result.sps30_caqi_level == "medium"
     assert result.uptime == 45632
+
+
+@pytest.mark.asyncio
+async def test_caqi_value():
+    """Test CAQI value when PM10 and PM2.5 is None."""
+    data = {"software_version": "NAMF-2020-36", "sensordatavalues": []}
+
+    session = aiohttp.ClientSession()
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            payload={"www_basicauth_enabled": False},
+        )
+        session_mock.get(
+            "http://192.168.172.12/data.json",
+            payload=data,
+        )
+        session_mock.get(
+            "http://192.168.172.12/values",
+            payload=VALUES,
+        )
+
+        options = ConnectionOptions(VALID_IP)
+        nam = await NettigoAirMonitor.create(session, options)
+
+        result = await nam.async_update()
+
+    await session.close()
+
+    assert result.sds011_p1 is None
+    assert result.sds011_p2 is None
+    assert result.sds011_caqi is None
+    assert result.sds011_caqi_level is None
+    assert result.sps30_p1 is None
+    assert result.sps30_p2 is None
+    assert result.sps30_caqi is None
+    assert result.sps30_caqi_level is None
 
 
 @pytest.mark.asyncio
