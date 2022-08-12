@@ -13,6 +13,11 @@ ATTR_SENSOR_VALUES: Final[str] = "sensordatavalues"
 ATTR_UPTIME: Final[str] = "uptime"
 ATTR_VALUES: Final[str] = "values"
 
+ATTR_SDS011_P1 = "sds011_p1"
+ATTR_SDS011_P2 = "sds011_p2"
+ATTR_SPS30_P1 = "sps30_p1"
+ATTR_SPS30_P2 = "sps30_p2"
+
 DEFAULT_TIMEOUT: Final[ClientTimeout] = ClientTimeout(total=5)
 
 RESPONSES_FROM_CACHE: Final[int] = 3
