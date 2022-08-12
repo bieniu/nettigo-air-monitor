@@ -16,10 +16,6 @@ from .const import (
     ATTR_DATA,
     ATTR_OTA,
     ATTR_RESTART,
-    ATTR_SDS011_P1,
-    ATTR_SDS011_P2,
-    ATTR_SPS30_P1,
-    ATTR_SPS30_P2,
     ATTR_UPTIME,
     ATTR_VALUES,
     DEFAULT_TIMEOUT,
@@ -160,14 +156,19 @@ class NettigoAirMonitor:
         if ATTR_UPTIME in data:
             sensors[ATTR_UPTIME] = int(data[ATTR_UPTIME])
 
-        sensors["sds011_caqi"], _ = caqi_eu.get_caqi(
-            pm10_1h=sensors.get(ATTR_SDS011_P1), pm25_1h=sensors.get(ATTR_SDS011_P2)
-        )
-        sensors["sps30_caqi"], _ = caqi_eu.get_caqi(
-            pm10_1h=sensors.get(ATTR_SPS30_P1), pm25_1h=sensors.get(ATTR_SPS30_P2)
-        )
+        for sensor in ("sds011", "sps30"):
+            value, data = caqi_eu.get_caqi(
+                pm10_1h=sensors.get(f"{sensor}_p1"),
+                pm25_1h=sensors.get(f"{sensor}_p2"),
+                with_level=True,
+            )
+            if value is not None and value > -1:
+                sensors[f"{sensor}_caqi"] = value
+                sensors[f"{sensor}_caqi_level"] = data["level"]
 
-        return from_dict(data_class=NAMSensors, data=sensors)
+        result: NAMSensors = from_dict(data_class=NAMSensors, data=sensors)
+
+        return result
 
     async def async_get_mac_address(self) -> str:
         """Retrieve the device MAC address."""
