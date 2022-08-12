@@ -8,6 +8,7 @@ from http import HTTPStatus
 from typing import Any
 
 from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
+from aqipy import caqi_eu
 from dacite import from_dict
 
 from .const import (
@@ -15,6 +16,10 @@ from .const import (
     ATTR_DATA,
     ATTR_OTA,
     ATTR_RESTART,
+    ATTR_SDS011_P1,
+    ATTR_SDS011_P2,
+    ATTR_SPS30_P1,
+    ATTR_SPS30_P2,
     ATTR_UPTIME,
     ATTR_VALUES,
     DEFAULT_TIMEOUT,
@@ -154,6 +159,13 @@ class NettigoAirMonitor:
 
         if ATTR_UPTIME in data:
             sensors[ATTR_UPTIME] = int(data[ATTR_UPTIME])
+
+        sensors["sds011_caqi"], _ = caqi_eu.get_caqi(
+            pm10_1h=sensors.get(ATTR_SDS011_P1), pm25_1h=sensors.get(ATTR_SDS011_P2)
+        )
+        sensors["sps30_caqi"], _ = caqi_eu.get_caqi(
+            pm10_1h=sensors.get(ATTR_SPS30_P1), pm25_1h=sensors.get(ATTR_SPS30_P2)
+        )
 
         return from_dict(data_class=NAMSensors, data=sensors)
 
