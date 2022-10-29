@@ -19,6 +19,9 @@ RESPONSES_FROM_CACHE: Final[int] = 3
 
 VALUES_TO_ROUND: Final[list[str]] = [
     "conc_co2_ppm",
+    "pms_p0",
+    "pms_p1",
+    "pms_p2",
     "sds_p1",
     "sds_p2",
     "sps30_p0",
