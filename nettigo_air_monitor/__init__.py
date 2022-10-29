@@ -156,7 +156,7 @@ class NettigoAirMonitor:
         if ATTR_UPTIME in data:
             sensors[ATTR_UPTIME] = int(data[ATTR_UPTIME])
 
-        for sensor in ("sds011", "sps30"):
+        for sensor in ("pms", "sds011", "sps30"):
             value, data = caqi_eu.get_caqi(
                 pm10_1h=sensors.get(f"{sensor}_p1"),
                 pm25_1h=sensors.get(f"{sensor}_p2"),

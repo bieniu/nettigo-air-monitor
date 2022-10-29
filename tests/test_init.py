@@ -70,6 +70,11 @@ async def test_valid_data():
     assert result.heca_humidity == 59.7
     assert result.heca_temperature == 15.1
     assert result.mhz14a_carbon_dioxide == 865
+    assert result.pms_p0 == 6
+    assert result.pms_p1 == 10
+    assert result.pms_p2 == 11
+    assert result.pms_caqi == 19
+    assert result.pms_caqi_level == "very low"
     assert result.sds011_p1 == 23
     assert result.sds011_p2 == 20
     assert result.sds011_caqi == 34

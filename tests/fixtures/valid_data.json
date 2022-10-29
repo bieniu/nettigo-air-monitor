@@ -5,6 +5,18 @@
     "uptime": "45632",
     "sensordatavalues": [
         {
+            "value_type": "PMS_P0",
+            "value": "6.00"
+        },
+        {
+            "value_type": "PMS_P1",
+            "value": "10.00"
+        },
+        {
+            "value_type": "PMS_P2",
+            "value": "11.00"
+        },
+        {
             "value_type": "SDS_P1",
             "value": "22.70"
         },
