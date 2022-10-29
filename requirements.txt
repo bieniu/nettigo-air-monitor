@@ -1,3 +1,4 @@
 aiohttp
-dacite
 aqipy-atmotech
+dacite
+orjson
