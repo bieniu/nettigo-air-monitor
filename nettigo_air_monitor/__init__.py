@@ -145,8 +145,8 @@ class NettigoAirMonitor:
                 raise ApiError(error.status) from error
         else:
             data = self._last_data = await resp.json(
-                loads=orjson.loads
-            )  # pylint: disable=no-member
+                loads=orjson.loads  # pylint: disable=no-member
+            )
             self._update_errors = 0
 
         self._software_version = data["software_version"]
