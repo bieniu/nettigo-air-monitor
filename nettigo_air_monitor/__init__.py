@@ -7,7 +7,6 @@ import re
 from http import HTTPStatus
 from typing import Any
 
-import orjson
 from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from aqipy import caqi_eu
 from dacite import from_dict
@@ -144,9 +143,7 @@ class NettigoAirMonitor:
             else:
                 raise ApiError(error.status) from error
         else:
-            data = self._last_data = await resp.json(
-                loads=orjson.loads  # pylint: disable=no-member
-            )
+            data = self._last_data = await resp.json()
             self._update_errors = 0
 
         self._software_version = data["software_version"]
@@ -198,7 +195,7 @@ class NettigoAirMonitor:
         except NotRespondingError as error:
             raise ApiError(error.status) from error
 
-        return await resp.json(loads=orjson.loads)  # pylint: disable=no-member
+        return await resp.json()
 
     @property
     def software_version(self) -> str:
