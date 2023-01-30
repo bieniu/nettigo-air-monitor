@@ -198,6 +198,11 @@ async def test_auth_failed():
             "http://192.168.172.12/config.json",
             payload={"www_basicauth_enabled": False},
         )
+
+        options = ConnectionOptions(VALID_IP, "user", "pass")
+        nam = await NettigoAirMonitor.create(session, options)
+
+    with aioresponses() as session_mock, pytest.raises(AuthFailed) as error:
         session_mock.post(
             "http://192.168.172.12/reset",
             exception=ClientResponseError(
@@ -205,11 +210,9 @@ async def test_auth_failed():
             ),
         )
 
-        options = ConnectionOptions(VALID_IP, "user", "pass")
-        try:
-            await NettigoAirMonitor.create(session, options)
-        except AuthFailed as error:
-            assert str(error) == "Authorization has failed"
+        await nam.async_restart()
+
+    assert str(error.value) == "Authorization has failed"
 
     await session.close()
 
