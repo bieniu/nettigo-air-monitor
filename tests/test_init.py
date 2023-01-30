@@ -218,6 +218,27 @@ async def test_auth_failed():
 
 
 @pytest.mark.asyncio
+async def test_auth_enabled():
+    """Test auth failed."""
+    session = aiohttp.ClientSession()
+    options = ConnectionOptions(VALID_IP, "user", "pass")
+
+    with aioresponses() as session_mock:
+        session_mock.get(
+            "http://192.168.172.12/config.json",
+            exception=ClientResponseError(
+                Mock(), Mock(), status=HTTPStatus.UNAUTHORIZED.value
+            ),
+        )
+
+        nam = await NettigoAirMonitor.create(session, options)
+
+    await session.close()
+
+    assert nam.auth_enabled is True
+
+
+@pytest.mark.asyncio
 async def test_http_404_code():
     """Test request ends with error."""
     session = aiohttp.ClientSession()
