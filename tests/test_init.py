@@ -74,7 +74,7 @@ async def test_valid_data():
     assert result.pms_p1 == 10
     assert result.pms_p2 == 11
     assert result.pms_caqi == 19
-    assert result.pms_caqi_level == "very low"
+    assert result.pms_caqi_level == "very_low"
     assert result.sds011_p1 == 22.7
     assert result.sds011_p2 == 20
     assert result.sds011_caqi == 34

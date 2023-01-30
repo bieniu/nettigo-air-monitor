@@ -161,7 +161,7 @@ class NettigoAirMonitor:
             )
             if value is not None and value > -1:
                 sensors[f"{sensor}_caqi"] = value
-                sensors[f"{sensor}_caqi_level"] = data["level"]
+                sensors[f"{sensor}_caqi_level"] = data["level"].replace(" ", "_")
 
         result: NAMSensors = from_dict(data_class=NAMSensors, data=sensors)
 
