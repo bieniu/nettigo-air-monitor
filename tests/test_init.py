@@ -196,6 +196,10 @@ async def test_auth_failed():
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
+            payload={"www_basicauth_enabled": False},
+        )
+        session_mock.post(
+            "http://192.168.172.12/reset",
             exception=ClientResponseError(
                 Mock(), Mock(), status=HTTPStatus.UNAUTHORIZED.value
             ),
@@ -243,10 +247,11 @@ async def test_http_404_code():
         )
 
         options = ConnectionOptions(VALID_IP, "user", "pass")
-        try:
+
+        with pytest.raises(ApiError) as error:
             await NettigoAirMonitor.create(session, options)
-        except ApiError as error:
-            assert str(error) == "Invalid response from device 192.168.172.12: 404"
+
+        assert str(error.value) == "Invalid response from device 192.168.172.12: 404"
 
     await session.close()
 
@@ -269,12 +274,10 @@ async def test_api_error():
         options = ConnectionOptions(VALID_IP)
         nam = await NettigoAirMonitor.create(session, options)
 
-        try:
+        with pytest.raises(ApiError) as error:
             await nam.async_update()
-        except ApiError as error:
-            assert (
-                str(error.status) == "Invalid response from device 192.168.172.12: 202"
-            )
+
+        assert str(error.value) == "Invalid response from device 192.168.172.12: 202"
 
     await session.close()
 
@@ -297,10 +300,10 @@ async def test_cache_empty():
         options = ConnectionOptions(VALID_IP)
         nam = await NettigoAirMonitor.create(session, options)
 
-        try:
+        with pytest.raises(ApiError) as error:
             await nam.async_update()
-        except ApiError as error:
-            assert str(error) == "The device 192.168.172.12 is not responding"
+
+        assert str(error.value) == "The device 192.168.172.12 is not responding"
 
     await session.close()
 
@@ -381,10 +384,10 @@ async def test_invalid_sensor_data():
         options = ConnectionOptions(VALID_IP)
         nam = await NettigoAirMonitor.create(session, options)
 
-        try:
+        with pytest.raises(InvalidSensorData) as error:
             await nam.async_update()
-        except InvalidSensorData as error:
-            assert str(error.status) == "Invalid sensor data"
+
+        assert str(error.value) == "Invalid sensor data"
 
     await session.close()
 
@@ -406,10 +409,10 @@ async def test_cannot_get_mac():
         options = ConnectionOptions(VALID_IP)
         nam = await NettigoAirMonitor.create(session, options)
 
-        try:
+        with pytest.raises(CannotGetMac) as error:
             await nam.async_get_mac_address()
-        except CannotGetMac as error:
-            assert str(error.status) == "Cannot get MAC address from device"
+
+        assert str(error.value) == "Cannot get MAC address from device"
 
     await session.close()
 
@@ -426,10 +429,10 @@ async def test_init_device_not_repond():
         )
         options = ConnectionOptions(VALID_IP)
 
-        try:
+        with pytest.raises(ApiError) as error:
             await NettigoAirMonitor.create(session, options)
-        except ApiError as error:
-            assert str(error.status) == "The device 192.168.172.12 is not responding"
+
+        assert str(error.value) == "The device 192.168.172.12 is not responding"
 
     await session.close()
 
@@ -452,10 +455,10 @@ async def test_get_ma_device_not_repond():
 
         nam = await NettigoAirMonitor.create(session, options)
 
-        try:
+        with pytest.raises(ApiError) as error:
             await nam.async_get_mac_address()
-        except ApiError as error:
-            assert str(error.status) == "The device 192.168.172.12 is not responding"
+
+        assert str(error.value) == "The device 192.168.172.12 is not responding"
 
     await session.close()
 
@@ -463,10 +466,10 @@ async def test_get_ma_device_not_repond():
 @pytest.mark.asyncio
 async def test_username_without_password():
     """Test error when username is provided without password."""
-    try:
+    with pytest.raises(ValueError) as error:
         ConnectionOptions(VALID_IP, "user")
-    except ValueError as error:
-        assert str(error) == "Supply both username and password"
+
+    assert str(error.value) == "Supply both username and password"
 
 
 @pytest.mark.asyncio
@@ -524,9 +527,9 @@ async def test_post_methods_fail(method, endpoint):
 
         method_to_call = getattr(nam, method)
 
-        try:
+        with pytest.raises(ApiError) as error:
             await method_to_call()
-        except ApiError as error:
-            assert str(error.status) == "The device 192.168.172.12 is not responding"
+
+        assert str(error.value) == "The device 192.168.172.12 is not responding"
 
     await session.close()
