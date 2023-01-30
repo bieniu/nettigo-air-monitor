@@ -17,20 +17,6 @@ DEFAULT_TIMEOUT: Final[ClientTimeout] = ClientTimeout(total=5)
 
 RESPONSES_FROM_CACHE: Final[int] = 3
 
-VALUES_TO_ROUND: Final[list[str]] = [
-    "conc_co2_ppm",
-    "pms_p0",
-    "pms_p1",
-    "pms_p2",
-    "sds_p1",
-    "sds_p2",
-    "sps30_p0",
-    "sps30_p1",
-    "sps30_p2",
-    "sps30_p4",
-    "signal",
-]
-
 ENDPOINTS: Final[dict[str, str]] = {
     ATTR_CONFIG: "http://{host}/config.json",
     ATTR_DATA: "http://{host}/data.json",
