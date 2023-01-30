@@ -23,7 +23,6 @@ from .const import (
     MAC_PATTERN,
     RENAME_KEY_MAP,
     RESPONSES_FROM_CACHE,
-    VALUES_TO_ROUND,
 )
 from .exceptions import (
     ApiError,
@@ -85,9 +84,7 @@ class NettigoAirMonitor:
 
         for key, value in result.items():
             if "pressure" in key and value is not None:
-                result[key] = round(value / 100)
-            if key in VALUES_TO_ROUND and value is not None:
-                result[key] = round(value)
+                result[key] = value / 100
 
         for old_key, new_key in RENAME_KEY_MAP:
             if result.get(old_key) is not None:
