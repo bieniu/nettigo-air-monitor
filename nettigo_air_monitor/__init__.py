@@ -114,14 +114,14 @@ class NettigoAirMonitor:
             raise NotRespondingError(
                 f"The device {self.host} is not responding"
             ) from error
-        else:
-            _LOGGER.debug("Data retrieved from %s, status: %s", self.host, resp.status)
-            if resp.status != HTTPStatus.OK.value:
-                raise ApiError(
-                    f"Invalid response from device {self.host}: {resp.status}"
-                )
 
-            return resp
+        _LOGGER.debug("Data retrieved from %s, status: %s", self.host, resp.status)
+        if resp.status != HTTPStatus.OK.value:
+            raise ApiError(
+                f"Invalid response from device {self.host}: {resp.status}"
+            )
+
+        return resp
 
     async def async_update(self) -> NAMSensors:
         """Retrieve data from the device."""
