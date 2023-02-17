@@ -59,8 +59,8 @@ repos:
           - --quiet
           - --configfile=bandit.yaml
         files: ^(nettigo_air_monitor|tests)/.+\.py$
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: "v5.10.1"
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -73,8 +73,8 @@ repos:
     rev: v1.29.0
     hooks:
       - id: yamllint
-  - repo: https://github.com/prettier/prettier
-    rev: 2.5.1
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.0-alpha.4
     hooks:
       - id: prettier
         stages: [manual]
