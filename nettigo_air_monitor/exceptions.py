@@ -1,5 +1,4 @@
 """NAM exceptions."""
-from __future__ import annotations
 
 
 class NamError(Exception):
