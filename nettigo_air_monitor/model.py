@@ -1,6 +1,5 @@
 """Type definitions for NAM."""
 from dataclasses import dataclass
-from typing import Optional
 
 import aiohttp
 
@@ -10,9 +9,9 @@ class ConnectionOptions:
     """Options for NAM."""
 
     host: str
-    username: Optional[str] = None
-    password: Optional[str] = None
-    auth: Optional[aiohttp.BasicAuth] = None
+    username: str | None = None
+    password: str | None = None
+    auth: aiohttp.BasicAuth | None = None
 
     def __post_init__(self) -> None:
         """Call after initialization."""
@@ -29,34 +28,34 @@ class ConnectionOptions:
 class NAMSensors:
     """Data class for NAM sensors."""
 
-    bme280_humidity: Optional[float]
-    bme280_pressure: Optional[float]
-    bme280_temperature: Optional[float]
-    bmp180_pressure: Optional[float]
-    bmp180_temperature: Optional[float]
-    bmp280_pressure: Optional[float]
-    bmp280_temperature: Optional[float]
-    dht22_humidity: Optional[float]
-    dht22_temperature: Optional[float]
-    heca_humidity: Optional[float]
-    heca_temperature: Optional[float]
-    mhz14a_carbon_dioxide: Optional[float]
-    pms_caqi: Optional[int]
-    pms_caqi_level: Optional[str]
-    pms_p0: Optional[float]
-    pms_p1: Optional[float]
-    pms_p2: Optional[float]
-    sds011_caqi: Optional[int]
-    sds011_caqi_level: Optional[str]
-    sds011_p1: Optional[float]
-    sds011_p2: Optional[float]
-    sht3x_humidity: Optional[float]
-    sht3x_temperature: Optional[float]
-    signal: Optional[float]
-    sps30_caqi: Optional[int]
-    sps30_caqi_level: Optional[str]
-    sps30_p0: Optional[float]
-    sps30_p1: Optional[float]
-    sps30_p2: Optional[float]
-    sps30_p4: Optional[float]
-    uptime: Optional[int]
+    bme280_humidity: float | None
+    bme280_pressure: float | None
+    bme280_temperature: float | None
+    bmp180_pressure: float | None
+    bmp180_temperature: float | None
+    bmp280_pressure: float | None
+    bmp280_temperature: float | None
+    dht22_humidity: float | None
+    dht22_temperature: float | None
+    heca_humidity: float | None
+    heca_temperature: float | None
+    mhz14a_carbon_dioxide: float | None
+    pms_caqi: int | None
+    pms_caqi_level: str | None
+    pms_p0: float | None
+    pms_p1: float | None
+    pms_p2: float | None
+    sds011_caqi: int | None
+    sds011_caqi_level: str | None
+    sds011_p1: float | None
+    sds011_p2: float | None
+    sht3x_humidity: float | None
+    sht3x_temperature: float | None
+    signal: float | None
+    sps30_caqi: int | None
+    sps30_caqi_level: str | None
+    sps30_p0: float | None
+    sps30_p1: float | None
+    sps30_p2: float | None
+    sps30_p4: float | None
+    uptime: int | None
