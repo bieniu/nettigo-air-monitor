@@ -21,8 +21,9 @@ async def main():
     """Main."""
     websession = ClientSession()
     options = ConnectionOptions(host="nam", username="user", password="password")
+
+    nam = await NettigoAirMonitor.create(websession, options)
     try:
-        nam = await NettigoAirMonitor.create(websession, options)
         async with async_timeout.timeout(10):
             data = await nam.async_update()
             mac = await nam.async_get_mac_address()
