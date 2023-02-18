@@ -13,7 +13,6 @@ Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 
 ```python
 """An example of using Nettigo Air Monitor package."""
-
 import asyncio
 import logging
 
@@ -22,9 +21,9 @@ from aiohttp import ClientConnectorError, ClientError, ClientSession
 
 from nettigo_air_monitor import (
     ApiError,
-    AuthFailed,
+    AuthFailedError,
     ConnectionOptions,
-    InvalidSensorData,
+    InvalidSensorDataError,
     NettigoAirMonitor,
 )
 
@@ -32,10 +31,10 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 async def main():
-    """Main."""
+    """Run main fynction."""
     websession = ClientSession()
     options = ConnectionOptions(host="nam", username="user", password="password")
-    
+
     nam = await NettigoAirMonitor.create(websession, options)
     try:
         async with async_timeout.timeout(10):
@@ -43,14 +42,15 @@ async def main():
             mac = await nam.async_get_mac_address()
     except (
         ApiError,
-        AuthFailed,
+        AuthFailedError,
         ClientConnectorError,
         ClientError,
-        InvalidSensorData,
+        InvalidSensorDataError,
         asyncio.exceptions.TimeoutError,
     ) as error:
         print(f"Error: {error}")
     else:
+        print(f"Auth enabled: {nam.auth_enabled}")
         print(f"Firmware: {nam.software_version}")
         print(f"MAC address: {mac}")
         print(f"Data: {data}")
@@ -61,7 +61,6 @@ async def main():
 loop = asyncio.new_event_loop()
 loop.run_until_complete(main())
 loop.close()
-
 ```
 
 [releases]: https://github.com/bieniu/nettigo-air-monitor/releases

@@ -1,5 +1,4 @@
 """An example of using Nettigo Air Monitor package."""
-
 import asyncio
 import logging
 
@@ -8,9 +7,9 @@ from aiohttp import ClientConnectorError, ClientError, ClientSession
 
 from nettigo_air_monitor import (
     ApiError,
-    AuthFailed,
+    AuthFailedError,
     ConnectionOptions,
-    InvalidSensorData,
+    InvalidSensorDataError,
     NettigoAirMonitor,
 )
 
@@ -29,10 +28,10 @@ async def main():
             mac = await nam.async_get_mac_address()
     except (
         ApiError,
-        AuthFailed,
+        AuthFailedError,
         ClientConnectorError,
         ClientError,
-        InvalidSensorData,
+        InvalidSensorDataError,
         asyncio.exceptions.TimeoutError,
     ) as error:
         print(f"Error: {error}")
