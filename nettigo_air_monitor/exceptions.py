@@ -18,13 +18,13 @@ class NotRespondingError(NamError):
     """Raised when device is not responding."""
 
 
-class AuthFailed(NamError):
+class AuthFailedError(NamError):
     """Raised if auth fails."""
 
 
-class CannotGetMac(NamError):
+class CannotGetMacError(NamError):
     """Raised when cannot get device MAC address."""
 
 
-class InvalidSensorData(NamError):
+class InvalidSensorDataError(NamError):
     """Raised when sensor data is invalid."""

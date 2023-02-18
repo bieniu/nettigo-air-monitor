@@ -26,9 +26,9 @@ from .const import (
 )
 from .exceptions import (
     ApiError,
-    AuthFailed,
-    CannotGetMac,
-    InvalidSensorData,
+    AuthFailedError,
+    CannotGetMacError,
+    InvalidSensorDataError,
     NotRespondingError,
 )
 from .model import ConnectionOptions, NAMSensors
@@ -64,7 +64,7 @@ class NettigoAirMonitor:
 
         try:
             config = await self.async_check_credentials()
-        except AuthFailed:
+        except AuthFailedError:
             self._auth_enabled = True
         else:
             self._auth_enabled = config["www_basicauth_enabled"]
@@ -105,7 +105,7 @@ class NettigoAirMonitor:
             )
         except ClientResponseError as error:
             if error.status == HTTPStatus.UNAUTHORIZED.value:
-                raise AuthFailed("Authorization has failed") from error
+                raise AuthFailedError("Authorization has failed") from error
             raise ApiError(
                 f"Invalid response from device {self.host}: {error.status}"
             ) from error
@@ -146,7 +146,7 @@ class NettigoAirMonitor:
         try:
             sensors = self._parse_sensor_data(data["sensordatavalues"])
         except (TypeError, KeyError) as error:
-            raise InvalidSensorData("Invalid sensor data") from error
+            raise InvalidSensorDataError("Invalid sensor data") from error
 
         if ATTR_UPTIME in data:
             sensors[ATTR_UPTIME] = int(data[ATTR_UPTIME])
@@ -177,7 +177,7 @@ class NettigoAirMonitor:
         data = await resp.text()
 
         if not (mac := re.search(MAC_PATTERN, data)):
-            raise CannotGetMac("Cannot get MAC address from device")
+            raise CannotGetMacError("Cannot get MAC address from device")
 
         return mac[0]
 

@@ -87,7 +87,8 @@ ignore = [
     "S101",     # Use of `assert` detected
     ]
 "example.py" = [
-    "T201",      # `print` found
+    "T201",     # `print` found
+    "S106",     # Possible hardcoded password: "password"
 ]
 
 [tool.ruff.pyupgrade]
