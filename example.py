@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 async def main():
-    """Run main fynction."""
+    """Run main function."""
     websession = ClientSession()
     options = ConnectionOptions(host="nam", username="user", password="password")
 
