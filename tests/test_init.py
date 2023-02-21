@@ -11,10 +11,10 @@ from aioresponses import aioresponses
 
 from nettigo_air_monitor import (
     ApiError,
-    AuthFailed,
-    CannotGetMac,
+    AuthFailedError,
+    CannotGetMacError,
     ConnectionOptions,
-    InvalidSensorData,
+    InvalidSensorDataError,
     NettigoAirMonitor,
 )
 
@@ -197,7 +197,7 @@ async def test_auth_failed():
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock, pytest.raises(AuthFailed) as error:
+    with aioresponses() as session_mock:
         session_mock.post(
             "http://192.168.172.12/reset",
             exception=ClientResponseError(
@@ -205,11 +205,12 @@ async def test_auth_failed():
             ),
         )
 
-        await nam.async_restart()
+        with pytest.raises(AuthFailedError) as excinfo:
+            await nam.async_restart()
+
+    assert str(excinfo.value) == "Authorization has failed"
 
     await session.close()
-
-    assert str(error.value) == "Authorization has failed"
 
 
 @pytest.mark.asyncio
@@ -239,19 +240,19 @@ async def test_http_404_code():
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
-    with aioresponses() as session_mock, pytest.raises(ApiError) as error:
+    with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
             exception=ClientResponseError(
                 Mock(), Mock(), status=HTTPStatus.NOT_FOUND.value
             ),
         )
+        with pytest.raises(ApiError) as excinfo:
+            await NettigoAirMonitor.create(session, options)
 
-        await NettigoAirMonitor.create(session, options)
+    assert str(excinfo.value) == "Invalid response from device 192.168.172.12: 404"
 
     await session.close()
-
-    assert str(error.value) == "Invalid response from device 192.168.172.12: 404"
 
 
 @pytest.mark.asyncio
@@ -268,17 +269,17 @@ async def test_api_error():
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock, pytest.raises(ApiError) as error:
+    with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/data.json",
             status=HTTPStatus.ACCEPTED.value,
         )
+        with pytest.raises(ApiError) as excinfo:
+            await nam.async_update()
 
-        await nam.async_update()
+    assert str(excinfo.value) == "Invalid response from device 192.168.172.12: 202"
 
     await session.close()
-
-    assert str(error.value) == "Invalid response from device 192.168.172.12: 202"
 
 
 @pytest.mark.asyncio
@@ -295,17 +296,18 @@ async def test_cache_empty():
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock, pytest.raises(ApiError) as error:
+    with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/data.json",
             exception=asyncio.TimeoutError(Mock(), Mock()),
         )
 
-        await nam.async_update()
+        with pytest.raises(ApiError) as excinfo:
+            await nam.async_update()
+
+    assert str(excinfo.value) == "The device 192.168.172.12 is not responding"
 
     await session.close()
-
-    assert str(error.value) == "The device 192.168.172.12 is not responding"
 
 
 @pytest.mark.asyncio
@@ -364,7 +366,7 @@ async def test_data_cached():
 
 @pytest.mark.asyncio
 async def test_invalid_sensor_data():
-    """Test InvalidSensorData error."""
+    """Test InvalidSensorDataError."""
     with open("tests/fixtures/invalid_data.json", encoding="utf-8") as file:
         data = json.load(file)
 
@@ -379,22 +381,23 @@ async def test_invalid_sensor_data():
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock, pytest.raises(InvalidSensorData) as error:
+    with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/data.json",
             payload=data,
         )
 
-        await nam.async_update()
+        with pytest.raises(InvalidSensorDataError) as excinfo:
+            await nam.async_update()
+
+    assert str(excinfo.value) == "Invalid sensor data"
 
     await session.close()
-
-    assert str(error.value) == "Invalid sensor data"
 
 
 @pytest.mark.asyncio
 async def test_cannot_get_mac():
-    """Test CannotGetMac error."""
+    """Test CannotGetMacError error."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP)
 
@@ -406,17 +409,18 @@ async def test_cannot_get_mac():
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock, pytest.raises(CannotGetMac) as error:
+    with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/values",
             payload="lorem ipsum",
         )
 
-        await nam.async_get_mac_address()
+        with pytest.raises(CannotGetMacError) as excinfo:
+            await nam.async_get_mac_address()
+
+    assert str(excinfo.value) == "Cannot get MAC address from device"
 
     await session.close()
-
-    assert str(error.value) == "Cannot get MAC address from device"
 
 
 @pytest.mark.asyncio
@@ -425,17 +429,18 @@ async def test_init_device_not_repond():
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock, pytest.raises(ApiError) as error:
+    with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
             exception=asyncio.TimeoutError(Mock(), Mock()),
         )
 
-        await NettigoAirMonitor.create(session, options)
+        with pytest.raises(ApiError) as excinfo:
+            await NettigoAirMonitor.create(session, options)
+
+    assert str(excinfo.value) == "The device 192.168.172.12 is not responding"
 
     await session.close()
-
-    assert str(error.value) == "The device 192.168.172.12 is not responding"
 
 
 @pytest.mark.asyncio
@@ -452,31 +457,34 @@ async def test_get_ma_device_not_repond():
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock, pytest.raises(ApiError) as error:
+    with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/values",
             exception=asyncio.TimeoutError(Mock(), Mock()),
         )
 
-        await nam.async_get_mac_address()
+        with pytest.raises(ApiError) as excinfo:
+            await nam.async_get_mac_address()
 
     await session.close()
 
-    assert str(error.value) == "The device 192.168.172.12 is not responding"
+    assert str(excinfo.value) == "The device 192.168.172.12 is not responding"
 
 
 @pytest.mark.asyncio
 async def test_username_without_password():
     """Test error when username is provided without password."""
-    with pytest.raises(ValueError) as error:
+    with pytest.raises(
+        ValueError, match="Supply both username and password"
+    ) as excinfo:
         ConnectionOptions(VALID_IP, "user")
 
-    assert str(error.value) == "Supply both username and password"
+    assert str(excinfo.value) == "Supply both username and password"
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "method,endpoint", [("async_restart", "reset"), ("async_ota_update", "ota")]
+    ("method", "endpoint"), [("async_restart", "reset"), ("async_ota_update", "ota")]
 )
 async def test_post_methods(method, endpoint):
     """Test post methods."""
@@ -508,7 +516,7 @@ async def test_post_methods(method, endpoint):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "method,endpoint", [("async_restart", "reset"), ("async_ota_update", "ota")]
+    ("method", "endpoint"), [("async_restart", "reset"), ("async_ota_update", "ota")]
 )
 async def test_post_methods_fail(method, endpoint):
     """Test fail of the post methods."""
@@ -523,15 +531,16 @@ async def test_post_methods_fail(method, endpoint):
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock, pytest.raises(ApiError) as error:
+    with aioresponses() as session_mock:
         session_mock.post(
             f"http://192.168.172.12/{endpoint}",
             exception=asyncio.TimeoutError(Mock(), Mock()),
         )
 
         method_to_call = getattr(nam, method)
-        await method_to_call()
+        with pytest.raises(ApiError) as excinfo:
+            await method_to_call()
+
+    assert str(excinfo.value) == "The device 192.168.172.12 is not responding"
 
     await session.close()
-
-    assert str(error.value) == "The device 192.168.172.12 is not responding"
