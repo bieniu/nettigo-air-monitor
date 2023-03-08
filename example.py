@@ -14,10 +14,14 @@ from nettigo_air_monitor import (
 
 logging.basicConfig(level=logging.DEBUG)
 
+HOST = "nam"
+USERNAME = "user"
+PASSWORD = "password"
+
 
 async def main():
     """Run main function."""
-    options = ConnectionOptions(host="nam", username="user", password="password")
+    options = ConnectionOptions(host=HOST, username=USERNAME, password=PASSWORD)
 
     async with ClientSession() as websession:
         nam = await NettigoAirMonitor.create(websession, options)
