@@ -2,7 +2,6 @@
 import asyncio
 import logging
 
-import async_timeout
 from aiohttp import ClientConnectorError, ClientError, ClientSession
 
 from nettigo_air_monitor import (
@@ -15,33 +14,35 @@ from nettigo_air_monitor import (
 
 logging.basicConfig(level=logging.DEBUG)
 
+HOST = "nam"
+USERNAME = "user"
+PASSWORD = "password"
+
 
 async def main():
     """Run main function."""
-    websession = ClientSession()
-    options = ConnectionOptions(host="nam", username="user", password="password")
+    options = ConnectionOptions(host=HOST, username=USERNAME, password=PASSWORD)
 
-    nam = await NettigoAirMonitor.create(websession, options)
-    try:
-        async with async_timeout.timeout(10):
+    async with ClientSession() as websession:
+        nam = await NettigoAirMonitor.create(websession, options)
+
+        try:
             data = await nam.async_update()
             mac = await nam.async_get_mac_address()
-    except (
-        ApiError,
-        AuthFailedError,
-        ClientConnectorError,
-        ClientError,
-        InvalidSensorDataError,
-        asyncio.exceptions.TimeoutError,
-    ) as error:
-        print(f"Error: {error}")
-    else:
-        print(f"Auth enabled: {nam.auth_enabled}")
-        print(f"Firmware: {nam.software_version}")
-        print(f"MAC address: {mac}")
-        print(f"Data: {data}")
-
-    await websession.close()
+        except (
+            ApiError,
+            AuthFailedError,
+            ClientConnectorError,
+            ClientError,
+            InvalidSensorDataError,
+            asyncio.TimeoutError,
+        ) as error:
+            print(f"Error: {error}")
+        else:
+            print(f"Auth enabled: {nam.auth_enabled}")
+            print(f"Firmware: {nam.software_version}")
+            print(f"MAC address: {mac}")
+            print(f"Data: {data}")
 
 
 loop = asyncio.new_event_loop()
