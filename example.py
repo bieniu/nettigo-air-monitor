@@ -30,12 +30,12 @@ async def main() -> None:
             data = await nam.async_update()
             mac = await nam.async_get_mac_address()
         except (
+            TimeoutError,
             ApiError,
             AuthFailedError,
             ClientConnectorError,
             ClientError,
             InvalidSensorDataError,
-            asyncio.TimeoutError,
         ) as error:
             print(f"Error: {error}")
         else:

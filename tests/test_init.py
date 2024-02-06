@@ -1,5 +1,4 @@
 """Tests for nettigo package."""
-import asyncio
 import json
 from http import HTTPStatus
 from unittest.mock import Mock, patch
@@ -299,7 +298,7 @@ async def test_cache_empty() -> None:
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/data.json",
-            exception=asyncio.TimeoutError(Mock(), Mock()),
+            exception=TimeoutError(Mock(), Mock()),
         )
 
         with pytest.raises(ApiError) as excinfo:
@@ -330,7 +329,7 @@ async def test_data_cached() -> None:
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
-            exception=asyncio.TimeoutError(Mock(), Mock()),
+            exception=TimeoutError(Mock(), Mock()),
         )
 
         nam = await NettigoAirMonitor.create(session, options)
@@ -432,7 +431,7 @@ async def test_init_device_not_repond() -> None:
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/config.json",
-            exception=asyncio.TimeoutError(Mock(), Mock()),
+            exception=TimeoutError(Mock(), Mock()),
         )
 
         with pytest.raises(ApiError) as excinfo:
@@ -460,7 +459,7 @@ async def test_get_ma_device_not_repond() -> None:
     with aioresponses() as session_mock:
         session_mock.get(
             "http://192.168.172.12/values",
-            exception=asyncio.TimeoutError(Mock(), Mock()),
+            exception=TimeoutError(Mock(), Mock()),
         )
 
         with pytest.raises(ApiError) as excinfo:
@@ -534,7 +533,7 @@ async def test_post_methods_fail(method: str, endpoint: str) -> None:
     with aioresponses() as session_mock:
         session_mock.post(
             f"http://192.168.172.12/{endpoint}",
-            exception=asyncio.TimeoutError(Mock(), Mock()),
+            exception=TimeoutError(Mock(), Mock()),
         )
 
         method_to_call = getattr(nam, method)
