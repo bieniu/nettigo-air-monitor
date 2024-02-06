@@ -19,7 +19,7 @@ USERNAME = "user"
 PASSWORD = "password"
 
 
-async def main():
+async def main() -> None:
     """Run main function."""
     options = ConnectionOptions(host=HOST, username=USERNAME, password=PASSWORD)
 

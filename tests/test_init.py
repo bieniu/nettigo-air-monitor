@@ -24,8 +24,8 @@ INVALID_HOST = "http://nam.org"
 VALUES = "MAC: AA:BB:CC:DD:EE:FF<br/>"
 
 
-@pytest.mark.asyncio
-async def test_valid_data():
+@pytest.mark.asyncio()
+async def test_valid_data() -> None:
     """Test with valid data."""
     with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
         data = json.load(file)
@@ -89,8 +89,8 @@ async def test_valid_data():
     assert result.uptime == 45632
 
 
-@pytest.mark.asyncio
-async def test_caqi_value():
+@pytest.mark.asyncio()
+async def test_caqi_value() -> None:
     """Test CAQI value when PM10 and PM2.5 is None."""
     data = {"software_version": "NAMF-2020-36", "sensordatavalues": []}
 
@@ -126,8 +126,8 @@ async def test_caqi_value():
     assert result.sps30_caqi_level is None
 
 
-@pytest.mark.asyncio
-async def test_valid_data_with_auth():
+@pytest.mark.asyncio()
+async def test_valid_data_with_auth() -> None:
     """Test with valid data with authorization."""
     with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
         data = json.load(file)
@@ -183,8 +183,8 @@ async def test_valid_data_with_auth():
     assert result.uptime == 45632
 
 
-@pytest.mark.asyncio
-async def test_auth_failed():
+@pytest.mark.asyncio()
+async def test_auth_failed() -> None:
     """Test auth failed."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
@@ -213,8 +213,8 @@ async def test_auth_failed():
     await session.close()
 
 
-@pytest.mark.asyncio
-async def test_auth_enabled():
+@pytest.mark.asyncio()
+async def test_auth_enabled() -> None:
     """Test auth failed."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
@@ -234,8 +234,8 @@ async def test_auth_enabled():
     assert nam.auth_enabled is True
 
 
-@pytest.mark.asyncio
-async def test_http_404_code():
+@pytest.mark.asyncio()
+async def test_http_404_code() -> None:
     """Test request ends with error."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
@@ -255,8 +255,8 @@ async def test_http_404_code():
     await session.close()
 
 
-@pytest.mark.asyncio
-async def test_api_error():
+@pytest.mark.asyncio()
+async def test_api_error() -> None:
     """Test API error."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP)
@@ -282,8 +282,8 @@ async def test_api_error():
     await session.close()
 
 
-@pytest.mark.asyncio
-async def test_cache_empty():
+@pytest.mark.asyncio()
+async def test_cache_empty() -> None:
     """Test error request when cache is empty."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP)
@@ -310,8 +310,8 @@ async def test_cache_empty():
     await session.close()
 
 
-@pytest.mark.asyncio
-async def test_data_cached():
+@pytest.mark.asyncio()
+async def test_data_cached() -> None:
     """Test error request when the data is cached."""
     with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
         data = json.load(file)
@@ -364,8 +364,8 @@ async def test_data_cached():
     assert result.uptime == 45632
 
 
-@pytest.mark.asyncio
-async def test_invalid_sensor_data():
+@pytest.mark.asyncio()
+async def test_invalid_sensor_data() -> None:
     """Test InvalidSensorDataError."""
     with open("tests/fixtures/invalid_data.json", encoding="utf-8") as file:
         data = json.load(file)
@@ -395,8 +395,8 @@ async def test_invalid_sensor_data():
     await session.close()
 
 
-@pytest.mark.asyncio
-async def test_cannot_get_mac():
+@pytest.mark.asyncio()
+async def test_cannot_get_mac() -> None:
     """Test CannotGetMacError error."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP)
@@ -423,8 +423,8 @@ async def test_cannot_get_mac():
     await session.close()
 
 
-@pytest.mark.asyncio
-async def test_init_device_not_repond():
+@pytest.mark.asyncio()
+async def test_init_device_not_repond() -> None:
     """Test init when device is not responding."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP)
@@ -443,8 +443,8 @@ async def test_init_device_not_repond():
     await session.close()
 
 
-@pytest.mark.asyncio
-async def test_get_ma_device_not_repond():
+@pytest.mark.asyncio()
+async def test_get_ma_device_not_repond() -> None:
     """Test get_mac when device is not responding."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP)
@@ -471,8 +471,8 @@ async def test_get_ma_device_not_repond():
     assert str(excinfo.value) == "The device 192.168.172.12 is not responding"
 
 
-@pytest.mark.asyncio
-async def test_username_without_password():
+@pytest.mark.asyncio()
+async def test_username_without_password() -> None:
     """Test error when username is provided without password."""
     with pytest.raises(
         ValueError, match="Supply both username and password"
@@ -482,11 +482,11 @@ async def test_username_without_password():
     assert str(excinfo.value) == "Supply both username and password"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.parametrize(
     ("method", "endpoint"), [("async_restart", "reset"), ("async_ota_update", "ota")]
 )
-async def test_post_methods(method, endpoint):
+async def test_post_methods(method: str, endpoint: str) -> None:
     """Test post methods."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP)
@@ -514,11 +514,11 @@ async def test_post_methods(method, endpoint):
     assert mock_request.call_args[0][1] == f"http://192.168.172.12/{endpoint}"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.parametrize(
     ("method", "endpoint"), [("async_restart", "reset"), ("async_ota_update", "ota")]
 )
-async def test_post_methods_fail(method, endpoint):
+async def test_post_methods_fail(method: str, endpoint: str) -> None:
     """Test fail of the post methods."""
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
