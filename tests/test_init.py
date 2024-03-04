@@ -1,4 +1,5 @@
 """Tests for nettigo package."""
+
 import json
 from http import HTTPStatus
 from unittest.mock import Mock, patch
@@ -498,9 +499,12 @@ async def test_post_methods(method: str, endpoint: str) -> None:
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock, patch(
-        "nettigo_air_monitor.NettigoAirMonitor._async_http_request"
-    ) as mock_request:
+    with (
+        aioresponses() as session_mock,
+        patch(
+            "nettigo_air_monitor.NettigoAirMonitor._async_http_request"
+        ) as mock_request,
+    ):
         session_mock.post(f"http://192.168.172.12/{endpoint}")
 
         method_to_call = getattr(nam, method)

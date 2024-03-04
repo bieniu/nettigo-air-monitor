@@ -1,4 +1,5 @@
 """An example of using Nettigo Air Monitor package."""
+
 import asyncio
 import logging
 
