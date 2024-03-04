@@ -1,4 +1,5 @@
 """Type definitions for NAM."""
+
 from dataclasses import dataclass
 
 import aiohttp

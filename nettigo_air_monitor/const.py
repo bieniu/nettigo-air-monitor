@@ -1,4 +1,5 @@
 """Constants for nettigo-air-monitor library."""
+
 from typing import Final
 
 from aiohttp.client import ClientTimeout

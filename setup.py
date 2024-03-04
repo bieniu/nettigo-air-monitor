@@ -1,4 +1,5 @@
 """Setup module for nettigo_air_monitor."""
+
 from pathlib import Path
 
 from setuptools import setup
