@@ -2,6 +2,7 @@
 
 import json
 from http import HTTPStatus
+from typing import Any
 from unittest.mock import Mock, patch
 
 import aiohttp
@@ -26,11 +27,10 @@ VALUES = "MAC: AA:BB:CC:DD:EE:FF<br/>"
 
 
 @pytest.mark.asyncio()
-async def test_valid_data(snapshot: SnapshotAssertion) -> None:
+async def test_valid_data(
+    snapshot: SnapshotAssertion, valid_data: dict[str, Any]
+) -> None:
     """Test with valid data."""
-    with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
-        data = json.load(file)
-
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP)
 
@@ -41,7 +41,7 @@ async def test_valid_data(snapshot: SnapshotAssertion) -> None:
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
-            payload=data,
+            payload=valid_data,
         )
         session_mock.get(
             "http://192.168.172.12/values",
@@ -91,11 +91,10 @@ async def test_caqi_value(snapshot: SnapshotAssertion) -> None:
 
 
 @pytest.mark.asyncio()
-async def test_valid_data_with_auth(snapshot: SnapshotAssertion) -> None:
+async def test_valid_data_with_auth(
+    snapshot: SnapshotAssertion, valid_data: dict[str, Any]
+) -> None:
     """Test with valid data with authorization."""
-    with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
-        data = json.load(file)
-
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
@@ -106,7 +105,7 @@ async def test_valid_data_with_auth(snapshot: SnapshotAssertion) -> None:
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
-            payload=data,
+            payload=valid_data,
         )
         session_mock.get(
             "http://192.168.172.12/values",
@@ -254,11 +253,10 @@ async def test_cache_empty() -> None:
 
 
 @pytest.mark.asyncio()
-async def test_data_cached(snapshot: SnapshotAssertion) -> None:
+async def test_data_cached(
+    snapshot: SnapshotAssertion, valid_data: dict[str, Any]
+) -> None:
     """Test error request when the data is cached."""
-    with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
-        data = json.load(file)
-
     session = aiohttp.ClientSession()
     options = ConnectionOptions(VALID_IP)
 
@@ -269,7 +267,7 @@ async def test_data_cached(snapshot: SnapshotAssertion) -> None:
         )
         session_mock.get(
             "http://192.168.172.12/data.json",
-            payload=data,
+            payload=valid_data,
         )
         session_mock.get(
             "http://192.168.172.12/data.json",

@@ -1,11 +1,20 @@
 """Set up some common test helper things."""
 
+import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 from syrupy.assertion import SnapshotAssertion
 from syrupy.extensions.amber import AmberSnapshotExtension
 from syrupy.location import PyTestLocation
+
+
+@pytest.fixture()
+def valid_data() -> dict[str, Any]:
+    """Return valid data from the fixture file."""
+    with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
+        return json.load(file)
 
 
 @pytest.fixture()
