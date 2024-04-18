@@ -8,6 +8,7 @@ import aiohttp
 import pytest
 from aiohttp import ClientResponseError
 from aioresponses import aioresponses
+from syrupy import SnapshotAssertion
 
 from nettigo_air_monitor import (
     ApiError,
@@ -25,7 +26,7 @@ VALUES = "MAC: AA:BB:CC:DD:EE:FF<br/>"
 
 
 @pytest.mark.asyncio()
-async def test_valid_data() -> None:
+async def test_valid_data(snapshot: SnapshotAssertion) -> None:
     """Test with valid data."""
     with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
         data = json.load(file)
@@ -49,48 +50,18 @@ async def test_valid_data() -> None:
 
         nam = await NettigoAirMonitor.create(session, options)
         mac = await nam.async_get_mac_address()
-        result = await nam.async_update()
+        sensors = await nam.async_update()
 
     await session.close()
 
     assert mac == "AA:BB:CC:DD:EE:FF"
 
     assert nam.software_version == "NAMF-2020-36"
-    assert result.bme280_humidity == 85.3
-    assert result.bme280_pressure == 989.206
-    assert result.bme280_temperature == 10.6
-    assert result.bmp180_pressure == 996.784
-    assert result.bmp180_temperature == 10.8
-    assert result.bmp280_pressure == 1022.012
-    assert result.bmp280_temperature == 5.6
-    assert result.dht22_humidity == 46.2
-    assert result.dht22_temperature == 6.3
-    assert result.heca_humidity == 59.7
-    assert result.heca_temperature == 15.1
-    assert result.mhz14a_carbon_dioxide == 865
-    assert result.pms_p0 == 6
-    assert result.pms_p1 == 10
-    assert result.pms_p2 == 11
-    assert result.pms_caqi == 19
-    assert result.pms_caqi_level == "very_low"
-    assert result.sds011_p1 == 22.7
-    assert result.sds011_p2 == 20
-    assert result.sds011_caqi == 34
-    assert result.sds011_caqi_level == "low"
-    assert result.sht3x_humidity == 34.7
-    assert result.sht3x_temperature == 6.3
-    assert result.signal == -85
-    assert result.sps30_p0 == 31.2
-    assert result.sps30_p1 == 21.2
-    assert result.sps30_p2 == 34.3
-    assert result.sps30_p4 == 24.7
-    assert result.sps30_caqi == 54
-    assert result.sps30_caqi_level == "medium"
-    assert result.uptime == 45632
+    assert sensors == snapshot
 
 
 @pytest.mark.asyncio()
-async def test_caqi_value() -> None:
+async def test_caqi_value(snapshot: SnapshotAssertion) -> None:
     """Test CAQI value when PM10 and PM2.5 is None."""
     data = {"software_version": "NAMF-2020-36", "sensordatavalues": []}
 
@@ -112,22 +83,15 @@ async def test_caqi_value() -> None:
         )
 
         nam = await NettigoAirMonitor.create(session, options)
-        result = await nam.async_update()
+        sensors = await nam.async_update()
 
     await session.close()
 
-    assert result.sds011_p1 is None
-    assert result.sds011_p2 is None
-    assert result.sds011_caqi is None
-    assert result.sds011_caqi_level is None
-    assert result.sps30_p1 is None
-    assert result.sps30_p2 is None
-    assert result.sps30_caqi is None
-    assert result.sps30_caqi_level is None
+    assert sensors == snapshot
 
 
 @pytest.mark.asyncio()
-async def test_valid_data_with_auth() -> None:
+async def test_valid_data_with_auth(snapshot: SnapshotAssertion) -> None:
     """Test with valid data with authorization."""
     with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
         data = json.load(file)
@@ -151,7 +115,7 @@ async def test_valid_data_with_auth() -> None:
 
         nam = await NettigoAirMonitor.create(session, options)
         mac = await nam.async_get_mac_address()
-        result = await nam.async_update()
+        sensors = await nam.async_update()
 
     await session.close()
 
@@ -159,28 +123,7 @@ async def test_valid_data_with_auth() -> None:
 
     assert nam.software_version == "NAMF-2020-36"
     assert nam.auth_enabled is True
-    assert result.bme280_humidity == 85.3
-    assert result.bme280_pressure == 989.206
-    assert result.bme280_temperature == 10.6
-    assert result.bmp180_pressure == 996.784
-    assert result.bmp180_temperature == 10.8
-    assert result.bmp280_pressure == 1022.012
-    assert result.bmp280_temperature == 5.6
-    assert result.dht22_humidity == 46.2
-    assert result.dht22_temperature == 6.3
-    assert result.heca_humidity == 59.7
-    assert result.heca_temperature == 15.1
-    assert result.mhz14a_carbon_dioxide == 865
-    assert result.sds011_p1 == 22.7
-    assert result.sds011_p2 == 20
-    assert result.sht3x_humidity == 34.7
-    assert result.sht3x_temperature == 6.3
-    assert result.signal == -85
-    assert result.sps30_p0 == 31.2
-    assert result.sps30_p1 == 21.2
-    assert result.sps30_p2 == 34.3
-    assert result.sps30_p4 == 24.7
-    assert result.uptime == 45632
+    assert sensors == snapshot
 
 
 @pytest.mark.asyncio()
@@ -311,7 +254,7 @@ async def test_cache_empty() -> None:
 
 
 @pytest.mark.asyncio()
-async def test_data_cached() -> None:
+async def test_data_cached(snapshot: SnapshotAssertion) -> None:
     """Test error request when the data is cached."""
     with open("tests/fixtures/valid_data.json", encoding="utf-8") as file:
         data = json.load(file)
@@ -335,33 +278,12 @@ async def test_data_cached() -> None:
 
         nam = await NettigoAirMonitor.create(session, options)
         await nam.async_update()
-        result = await nam.async_update()
+        sensors = await nam.async_update()
 
     await session.close()
 
     assert nam.software_version == "NAMF-2020-36"
-    assert result.bme280_humidity == 85.3
-    assert result.bme280_pressure == 989.206
-    assert result.bme280_temperature == 10.6
-    assert result.bmp180_pressure == 996.784
-    assert result.bmp180_temperature == 10.8
-    assert result.bmp280_pressure == 1022.012
-    assert result.bmp280_temperature == 5.6
-    assert result.dht22_humidity == 46.2
-    assert result.dht22_temperature == 6.3
-    assert result.heca_humidity == 59.7
-    assert result.heca_temperature == 15.1
-    assert result.mhz14a_carbon_dioxide == 865
-    assert result.sds011_p1 == 22.7
-    assert result.sds011_p2 == 20
-    assert result.sht3x_humidity == 34.7
-    assert result.sht3x_temperature == 6.3
-    assert result.signal == -85
-    assert result.sps30_p0 == 31.2
-    assert result.sps30_p1 == 21.2
-    assert result.sps30_p2 == 34.3
-    assert result.sps30_p4 == 24.7
-    assert result.uptime == 45632
+    assert sensors == snapshot
 
 
 @pytest.mark.asyncio()
