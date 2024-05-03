@@ -45,7 +45,7 @@ class NettigoAirMonitor:
         self._last_data: dict[str, Any] = {}
         self._options = options
         self._session = session
-        self._software_version: str
+        self._software_version: str | None = None
         self._update_errors: int = 0
         self._auth_enabled: bool = False
 
@@ -68,7 +68,7 @@ class NettigoAirMonitor:
             self._auth_enabled = True
         else:
             self._auth_enabled = config["www_basicauth_enabled"]
-            self._software_version = config.get("SOFTWARE_VERSION", "")
+            self._software_version = config.get("SOFTWARE_VERSION")
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -193,7 +193,7 @@ class NettigoAirMonitor:
         return await resp.json()
 
     @property
-    def software_version(self) -> str:
+    def software_version(self) -> str | None:
         """Return software version."""
         return self._software_version
 
