@@ -14,7 +14,7 @@ from tenacity import (
     retry,
     retry_if_exception_type,
     stop_after_attempt,
-    wait_exponential,
+    wait_incrementing,
 )
 
 from .const import (
@@ -127,19 +127,17 @@ class NettigoAirMonitor:
 
     @retry(
         retry=retry_if_exception_type(NotRespondingError),
-        stop=stop_after_attempt(5),
-        wait=wait_exponential(multiplier=1, min=4, max=10),
+        stop=stop_after_attempt(10),
+        wait=wait_incrementing(start=5, increment=5),
     )
     async def async_update(self) -> NAMSensors:
         """Retrieve data from the device."""
         url = self._construct_url(ATTR_DATA, host=self.host)
 
-        try:
-            resp = await self._async_http_request("get", url)
-        except NotRespondingError as error:
-            raise ApiError(error.status) from error
-        else:
-            data = await resp.json()
+        resp = await self._async_http_request("get", url)
+
+        data = await resp.json()
+
         self._software_version = data["software_version"]
 
         try:

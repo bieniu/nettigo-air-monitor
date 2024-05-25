@@ -4,6 +4,7 @@ import asyncio
 import logging
 
 from aiohttp import ClientConnectorError, ClientError, ClientSession
+from tenacity import RetryError
 
 from nettigo_air_monitor import (
     ApiError,
@@ -37,6 +38,7 @@ async def main() -> None:
             ClientConnectorError,
             ClientError,
             InvalidSensorDataError,
+            RetryError,
         ) as error:
             print(f"Error: {error}")
         else:
