@@ -14,8 +14,6 @@ ATTR_VALUES: Final[str] = "values"
 
 DEFAULT_TIMEOUT: Final[ClientTimeout] = ClientTimeout(total=5)
 
-RESPONSES_FROM_CACHE: Final[int] = 3
-
 ENDPOINTS: Final[dict[str, str]] = {
     ATTR_CONFIG: "http://{host}/config.json",
     ATTR_DATA: "http://{host}/data.json",

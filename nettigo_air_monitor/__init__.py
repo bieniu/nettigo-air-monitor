@@ -10,6 +10,12 @@ from typing import Any
 from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from aqipy import caqi_eu
 from dacite import from_dict
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from .const import (
     ATTR_CONFIG,
@@ -22,7 +28,6 @@ from .const import (
     ENDPOINTS,
     MAC_PATTERN,
     RENAME_KEY_MAP,
-    RESPONSES_FROM_CACHE,
 )
 from .exceptions import (
     ApiError,
@@ -42,7 +47,6 @@ class NettigoAirMonitor:
     def __init__(self, session: ClientSession, options: ConnectionOptions) -> None:
         """Initialize."""
         self.host = options.host
-        self._last_data: dict[str, Any] = {}
         self._options = options
         self._session = session
         self._software_version: str | None = None
@@ -121,6 +125,11 @@ class NettigoAirMonitor:
 
         return resp
 
+    @retry(
+        retry=retry_if_exception_type(NotRespondingError),
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=4, max=10),
+    )
     async def async_update(self) -> NAMSensors:
         """Retrieve data from the device."""
         url = self._construct_url(ATTR_DATA, host=self.host)
@@ -128,19 +137,9 @@ class NettigoAirMonitor:
         try:
             resp = await self._async_http_request("get", url)
         except NotRespondingError as error:
-            if self._update_errors <= RESPONSES_FROM_CACHE and self._last_data:
-                _LOGGER.info(
-                    "Using the cached data because the device %s is not responding",
-                    self.host,
-                )
-                data = self._last_data
-                self._update_errors += 1
-            else:
-                raise ApiError(error.status) from error
+            raise ApiError(error.status) from error
         else:
-            data = self._last_data = await resp.json()
-            self._update_errors = 0
-
+            data = await resp.json()
         self._software_version = data["software_version"]
 
         try:
