@@ -23,7 +23,7 @@ setup(
     packages=["nettigo_air_monitor"],
     package_data={"nettigo_air_monitor": ["py.typed"]},
     python_requires=">=3.11",
-    install_requires=["aiohttp>=3.7.0", "aqipy-atmotech", "dacite>=1.7.0"],
+    install_requires=["aiohttp>=3.7.0", "aqipy-atmotech", "dacite>=1.7.0", "tenacity"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: Apache Software License",
