@@ -11,6 +11,7 @@ from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from aqipy import caqi_eu
 from dacite import from_dict
 from tenacity import (
+    after_log,
     retry,
     retry_if_exception_type,
     stop_after_attempt,
@@ -127,8 +128,9 @@ class NettigoAirMonitor:
 
     @retry(
         retry=retry_if_exception_type(NotRespondingError),
-        stop=stop_after_attempt(10),
+        stop=stop_after_attempt(5),
         wait=wait_incrementing(start=5, increment=5),
+        after=after_log(_LOGGER, logging.DEBUG),
     )
     async def async_update(self) -> NAMSensors:
         """Retrieve data from the device."""
