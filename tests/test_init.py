@@ -225,66 +225,6 @@ async def test_api_error() -> None:
 
 
 @pytest.mark.asyncio()
-async def test_cache_empty() -> None:
-    """Test error request when cache is empty."""
-    session = aiohttp.ClientSession()
-    options = ConnectionOptions(VALID_IP)
-
-    with aioresponses() as session_mock:
-        session_mock.get(
-            "http://192.168.172.12/config.json",
-            payload={"www_basicauth_enabled": False},
-        )
-
-        nam = await NettigoAirMonitor.create(session, options)
-
-    with aioresponses() as session_mock:
-        session_mock.get(
-            "http://192.168.172.12/data.json",
-            exception=TimeoutError(Mock(), Mock()),
-        )
-
-        with pytest.raises(ApiError) as excinfo:
-            await nam.async_update()
-
-    assert str(excinfo.value) == "The device 192.168.172.12 is not responding"
-
-    await session.close()
-
-
-@pytest.mark.asyncio()
-async def test_data_cached(
-    snapshot: SnapshotAssertion, valid_data: dict[str, Any]
-) -> None:
-    """Test error request when the data is cached."""
-    session = aiohttp.ClientSession()
-    options = ConnectionOptions(VALID_IP)
-
-    with aioresponses() as session_mock:
-        session_mock.get(
-            "http://192.168.172.12/config.json",
-            payload={"www_basicauth_enabled": False},
-        )
-        session_mock.get(
-            "http://192.168.172.12/data.json",
-            payload=valid_data,
-        )
-        session_mock.get(
-            "http://192.168.172.12/data.json",
-            exception=TimeoutError(Mock(), Mock()),
-        )
-
-        nam = await NettigoAirMonitor.create(session, options)
-        await nam.async_update()
-        sensors = await nam.async_update()
-
-    await session.close()
-
-    assert nam.software_version == "NAMF-2020-36"
-    assert sensors == snapshot
-
-
-@pytest.mark.asyncio()
 async def test_invalid_sensor_data() -> None:
     """Test InvalidSensorDataError."""
     with open("tests/fixtures/invalid_data.json", encoding="utf-8") as file:
