@@ -10,6 +10,13 @@ from typing import Any
 from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
 from aqipy import caqi_eu
 from dacite import from_dict
+from tenacity import (
+    after_log,
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_incrementing,
+)
 
 from .const import (
     ATTR_CONFIG,
@@ -22,7 +29,6 @@ from .const import (
     ENDPOINTS,
     MAC_PATTERN,
     RENAME_KEY_MAP,
-    RESPONSES_FROM_CACHE,
 )
 from .exceptions import (
     ApiError,
@@ -42,7 +48,6 @@ class NettigoAirMonitor:
     def __init__(self, session: ClientSession, options: ConnectionOptions) -> None:
         """Initialize."""
         self.host = options.host
-        self._last_data: dict[str, Any] = {}
         self._options = options
         self._session = session
         self._software_version: str | None = None
@@ -121,25 +126,19 @@ class NettigoAirMonitor:
 
         return resp
 
+    @retry(
+        retry=retry_if_exception_type(NotRespondingError),
+        stop=stop_after_attempt(5),
+        wait=wait_incrementing(start=5, increment=5),
+        after=after_log(_LOGGER, logging.DEBUG),
+    )
     async def async_update(self) -> NAMSensors:
         """Retrieve data from the device."""
         url = self._construct_url(ATTR_DATA, host=self.host)
 
-        try:
-            resp = await self._async_http_request("get", url)
-        except NotRespondingError as error:
-            if self._update_errors <= RESPONSES_FROM_CACHE and self._last_data:
-                _LOGGER.info(
-                    "Using the cached data because the device %s is not responding",
-                    self.host,
-                )
-                data = self._last_data
-                self._update_errors += 1
-            else:
-                raise ApiError(error.status) from error
-        else:
-            data = self._last_data = await resp.json()
-            self._update_errors = 0
+        resp = await self._async_http_request("get", url)
+
+        data = await resp.json()
 
         self._software_version = data["software_version"]
 
