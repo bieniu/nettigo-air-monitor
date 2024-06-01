@@ -61,6 +61,10 @@
             "value": "99678.40"
         },
         {
+            "value_type": "DS18B20_temperature",
+            "value": "12.86"
+        },
+        {
             "value_type": "SHT3X_temperature",
             "value": "6.28"
         },
