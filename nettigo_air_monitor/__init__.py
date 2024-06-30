@@ -85,7 +85,7 @@ class NettigoAirMonitor:
     def _parse_sensor_data(data: dict[Any, Any]) -> dict[str, int | float]:
         """Parse sensor data dict."""
         result = {
-            item["value_type"].lower(): round(float(item["value"]), 1)
+            item["value_type"].lower(): float(item["value"])
             for item in data
             if item["value_type"] not in IGNORE_KEYS
         }
