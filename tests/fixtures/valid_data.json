@@ -115,6 +115,26 @@
         {
             "value_type": "signal",
             "value": "-85"
+        },
+        {
+            "value_type": "GPS_lat",
+            "value": "52.284921"
+        },
+        {
+            "value_type": "GPS_lon",
+            "value": "20.889263"
+        },
+        {
+            "value_type": "GPS_height",
+            "value": "102.80"
+        },
+        {
+            "value_type": "GPS_date",
+            "value": "06/29/2024"
+        },
+        {
+            "value_type": "GPS_time",
+            "value": "12:18:39.00"
         }
     ]
 }
