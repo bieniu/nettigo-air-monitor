@@ -6,6 +6,9 @@ from aiohttp.client import ClientTimeout
 
 ATTR_CONFIG: Final[str] = "config"
 ATTR_DATA: Final[str] = "data"
+ATTR_GPS_HEIGHT: Final[str] = "gps_height"
+ATTR_GPS_LAT: Final[str] = "gps_lat"
+ATTR_GPS_LON: Final[str] = "gps_lon"
 ATTR_OTA: Final[str] = "ota"
 ATTR_RESTART: Final[str] = "restart"
 ATTR_SENSOR_VALUES: Final[str] = "sensordatavalues"
@@ -26,9 +29,6 @@ RENAME_KEY_MAP: Final[list[tuple[str, str]]] = [
     ("bmp_pressure", "bmp180_pressure"),
     ("bmp_temperature", "bmp180_temperature"),
     ("conc_co2_ppm", "mhz14a_carbon_dioxide"),
-    ("gps_height", "gps_altitude"),
-    ("gps_lat", "gps_latitude"),
-    ("gps_lon", "gps_longitude"),
     ("humidity", "dht22_humidity"),
     ("sds_p1", "sds011_p1"),
     ("sds_p2", "sds011_p2"),
