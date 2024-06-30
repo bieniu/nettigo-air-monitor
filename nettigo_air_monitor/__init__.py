@@ -27,6 +27,7 @@ from .const import (
     ATTR_VALUES,
     DEFAULT_TIMEOUT,
     ENDPOINTS,
+    IGNORE_KEYS,
     MAC_PATTERN,
     RENAME_KEY_MAP,
 )
@@ -84,7 +85,9 @@ class NettigoAirMonitor:
     def _parse_sensor_data(data: dict[Any, Any]) -> dict[str, int | float]:
         """Parse sensor data dict."""
         result = {
-            item["value_type"].lower(): round(float(item["value"]), 1) for item in data
+            item["value_type"].lower(): round(float(item["value"]), 1)
+            for item in data
+            if item["value_type"] not in IGNORE_KEYS
         }
 
         for key, value in result.items():

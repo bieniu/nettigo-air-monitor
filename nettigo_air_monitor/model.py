@@ -39,6 +39,9 @@ class NAMSensors:
     dht22_humidity: float | None
     dht22_temperature: float | None
     ds18b20_temperature: float | None
+    gps_altitude: float | None
+    gps_latitude: float | None
+    gps_longitude: float | None
     heca_humidity: float | None
     heca_temperature: float | None
     mhz14a_carbon_dioxide: float | None
