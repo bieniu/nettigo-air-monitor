@@ -21,12 +21,16 @@ from tenacity import (
 from .const import (
     ATTR_CONFIG,
     ATTR_DATA,
+    ATTR_GPS_HEIGHT,
+    ATTR_GPS_LAT,
+    ATTR_GPS_LON,
     ATTR_OTA,
     ATTR_RESTART,
     ATTR_UPTIME,
     ATTR_VALUES,
     DEFAULT_TIMEOUT,
     ENDPOINTS,
+    IGNORE_KEYS,
     MAC_PATTERN,
     RENAME_KEY_MAP,
 )
@@ -53,6 +57,9 @@ class NettigoAirMonitor:
         self._software_version: str | None = None
         self._update_errors: int = 0
         self._auth_enabled: bool = False
+        self._latitude: float | None = None
+        self._longitude: float | None = None
+        self._altitude: float | None = None
 
     @classmethod
     async def create(
@@ -84,7 +91,9 @@ class NettigoAirMonitor:
     def _parse_sensor_data(data: dict[Any, Any]) -> dict[str, int | float]:
         """Parse sensor data dict."""
         result = {
-            item["value_type"].lower(): round(float(item["value"]), 1) for item in data
+            item["value_type"].lower(): float(item["value"])
+            for item in data
+            if item["value_type"] not in IGNORE_KEYS
         }
 
         for key, value in result.items():
@@ -146,6 +155,15 @@ class NettigoAirMonitor:
             sensors = self._parse_sensor_data(data["sensordatavalues"])
         except (TypeError, KeyError) as error:
             raise InvalidSensorDataError("Invalid sensor data") from error
+
+        if ATTR_GPS_LAT in sensors and self._latitude is None:
+            self._latitude = sensors.pop(ATTR_GPS_LAT)
+
+        if ATTR_GPS_LON in sensors and self._longitude is None:
+            self._longitude = sensors.pop(ATTR_GPS_LON)
+
+        if ATTR_GPS_HEIGHT in sensors and self._altitude is None:
+            self._altitude = sensors.pop(ATTR_GPS_HEIGHT)
 
         if ATTR_UPTIME in data:
             sensors[ATTR_UPTIME] = int(data[ATTR_UPTIME])
@@ -218,3 +236,18 @@ class NettigoAirMonitor:
             await self._async_http_request("post", url)
         except NotRespondingError as error:
             raise ApiError(error.status) from error
+
+    @property
+    def latitude(self) -> float | None:
+        """Return latitude."""
+        return self._latitude
+
+    @property
+    def longitude(self) -> float | None:
+        """Return longitude."""
+        return self._longitude
+
+    @property
+    def altitude(self) -> float | None:
+        """Return altitude."""
+        return self._altitude

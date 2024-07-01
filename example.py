@@ -45,6 +45,7 @@ async def main() -> None:
             print(f"Auth enabled: {nam.auth_enabled}")
             print(f"Firmware: {nam.software_version}")
             print(f"MAC address: {mac}")
+            print(f"Latitude: {nam.latitude}, Longitude: {nam.longitude}")
             print(f"Data: {data}")
 
 

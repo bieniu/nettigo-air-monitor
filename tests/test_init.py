@@ -52,6 +52,9 @@ async def test_valid_data(
     assert mac == "AA:BB:CC:DD:EE:FF"
 
     assert nam.software_version == "NAMF-2020-36"
+    assert nam.latitude == 52.284921
+    assert nam.longitude == 20.889263
+    assert nam.altitude == 102.8
     assert sensors == snapshot
 
 

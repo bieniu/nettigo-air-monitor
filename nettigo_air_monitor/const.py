@@ -6,6 +6,9 @@ from aiohttp.client import ClientTimeout
 
 ATTR_CONFIG: Final[str] = "config"
 ATTR_DATA: Final[str] = "data"
+ATTR_GPS_HEIGHT: Final[str] = "gps_height"
+ATTR_GPS_LAT: Final[str] = "gps_lat"
+ATTR_GPS_LON: Final[str] = "gps_lon"
 ATTR_OTA: Final[str] = "ota"
 ATTR_RESTART: Final[str] = "restart"
 ATTR_SENSOR_VALUES: Final[str] = "sensordatavalues"
@@ -31,5 +34,7 @@ RENAME_KEY_MAP: Final[list[tuple[str, str]]] = [
     ("sds_p2", "sds011_p2"),
     ("temperature", "dht22_temperature"),
 ]
+
+IGNORE_KEYS = ("GPS_date", "GPS_time")
 
 MAC_PATTERN: Final[str] = r"([0-9a-fA-F]{2}[:]){5}([0-9a-fA-F]{2})"
