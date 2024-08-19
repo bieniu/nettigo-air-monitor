@@ -30,7 +30,7 @@ CONFIG_JSON_URL = "http://192.168.172.12/config.json"
 VALUES_URL = "http://192.168.172.12/values"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_valid_data(
     snapshot: SnapshotAssertion, valid_data: dict[str, Any]
 ) -> None:
@@ -58,7 +58,7 @@ async def test_valid_data(
     assert sensors == snapshot
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_caqi_value(snapshot: SnapshotAssertion) -> None:
     """Test CAQI value when PM10 and PM2.5 is None."""
     data = {"software_version": "NAMF-2020-36", "sensordatavalues": []}
@@ -79,7 +79,7 @@ async def test_caqi_value(snapshot: SnapshotAssertion) -> None:
     assert sensors == snapshot
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_valid_data_with_auth(
     snapshot: SnapshotAssertion, valid_data: dict[str, Any]
 ) -> None:
@@ -105,7 +105,7 @@ async def test_valid_data_with_auth(
     assert sensors == snapshot
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_auth_failed() -> None:
     """Test auth failed."""
     session = ClientSession()
@@ -132,7 +132,7 @@ async def test_auth_failed() -> None:
     await session.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_auth_enabled() -> None:
     """Test auth failed."""
     session = ClientSession()
@@ -153,7 +153,7 @@ async def test_auth_enabled() -> None:
     assert nam.auth_enabled is True
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_http_404_code() -> None:
     """Test request ends with error."""
     session = ClientSession()
@@ -174,7 +174,7 @@ async def test_http_404_code() -> None:
     await session.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_api_error() -> None:
     """Test API error."""
     session = ClientSession()
@@ -195,7 +195,7 @@ async def test_api_error() -> None:
     await session.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_invalid_sensor_data() -> None:
     """Test InvalidSensorDataError."""
     with open("tests/fixtures/invalid_data.json", encoding="utf-8") as file:
@@ -220,7 +220,7 @@ async def test_invalid_sensor_data() -> None:
     await session.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_cannot_get_mac() -> None:
     """Test CannotGetMacError error."""
     session = ClientSession()
@@ -242,7 +242,7 @@ async def test_cannot_get_mac() -> None:
     await session.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_init_device_not_repond() -> None:
     """Test init when device is not responding."""
     session = ClientSession()
@@ -259,7 +259,7 @@ async def test_init_device_not_repond() -> None:
     await session.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_ma_device_not_repond() -> None:
     """Test get_mac when device is not responding."""
     session = ClientSession()
@@ -281,7 +281,7 @@ async def test_get_ma_device_not_repond() -> None:
     assert str(excinfo.value) == "The device 192.168.172.12 is not responding"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_username_without_password() -> None:
     """Test error when username is provided without password."""
     with pytest.raises(
@@ -292,7 +292,7 @@ async def test_username_without_password() -> None:
     assert str(excinfo.value) == "Supply both username and password"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("method", "endpoint"), [("async_restart", "reset"), ("async_ota_update", "ota")]
 )
@@ -324,7 +324,7 @@ async def test_post_methods(method: str, endpoint: str) -> None:
     assert mock_request.call_args[0][1] == f"http://192.168.172.12/{endpoint}"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("method", "endpoint"), [("async_restart", "reset"), ("async_ota_update", "ota")]
 )
@@ -355,7 +355,7 @@ async def test_post_methods_fail(method: str, endpoint: str) -> None:
 @pytest.mark.parametrize(
     "exc", [TimeoutError(Mock(), Mock()), ClientConnectorError(Mock(), Mock())]
 )
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_retry_success(valid_data: dict[str, Any], exc: Exception) -> None:
     """Test retry which succeeded."""
     session = ClientSession()
@@ -384,7 +384,7 @@ async def test_retry_success(valid_data: dict[str, Any], exc: Exception) -> None
 @pytest.mark.parametrize(
     "exc", [TimeoutError(Mock(), Mock()), ClientConnectorError(Mock(), Mock())]
 )
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_retry_fail(exc: Exception) -> None:
     """Test retry that failed."""
     session = ClientSession()
