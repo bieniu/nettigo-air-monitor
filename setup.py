@@ -19,7 +19,7 @@ setup(
     long_description_content_type="text/markdown",
     include_package_data=True,
     url="https://github.com/bieniu/nettigo-air-monitor",
-    license="Apache-2.0 License",
+    license="Apache-2.0",
     packages=["nettigo_air_monitor"],
     package_data={"nettigo_air_monitor": ["py.typed"]},
     python_requires=">=3.12",
