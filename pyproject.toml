@@ -27,8 +27,6 @@ target-version = "py313"
 lint.select = ["ALL"]
 
 lint.ignore = [
-    "ANN101",   # Missing type annotation for `self` in method
-    "ANN102",   # Missing type annotation for `cls` in classmethod
     "ANN401",   # Dynamically typed expressions (typing.Any) are disallowed
     "COM812",   # Trailing comma missing
     "D203",     # 1 blank line required before class docstring
