@@ -27,8 +27,6 @@ target-version = "py313"
 lint.select = ["ALL"]
 
 lint.ignore = [
-    "ANN101",   # Missing type annotation for `self` in method
-    "ANN102",   # Missing type annotation for `cls` in classmethod
     "ANN401",   # Dynamically typed expressions (typing.Any) are disallowed
     "COM812",   # Trailing comma missing
     "D203",     # 1 blank line required before class docstring
@@ -57,3 +55,50 @@ max-complexity = 25
 
 [tool.coverage.run]
 source = ["nettigo_air_monitor"]
+
+[tool.tox]
+legacy_tox_ini = """
+
+[tox]
+envlist = py312, py313, lint, typing, coverage
+skip_missing_interpreters = True
+
+[gh-actions]
+python =
+  3.12: py312, lint, typing, coverage
+  3.13: py313
+
+[testenv]
+commands =
+  pytest --timeout=30 --cov=nettigo_air_monitor --cov-report=xml {posargs} --error-for-skips
+deps =
+  -rrequirements.txt
+  -rrequirements-test.txt
+
+[testenv:lint]
+basepython = python3
+depends = py312
+ignore_errors = True
+skip_install = True
+usedevelop = False
+commands =
+  ruff check .
+  ruff format --check .
+
+[testenv:typing]
+basepython = python3
+depends = py312
+ignore_errors = True
+skip_install = True
+usedevelop = False
+commands =
+  mypy nettigo_air_monitor
+
+[testenv:coverage]
+basepython = python3
+depends = py312
+skip_install = True
+usedevelop = False
+commands =
+  coverage report --fail-under=79
+"""
