@@ -135,6 +135,10 @@
         {
             "value_type": "GPS_time",
             "value": "12:18:39.00"
+        },
+        {
+            "value_type": "ambient_light",
+            "value": "65"
         }
     ]
 }

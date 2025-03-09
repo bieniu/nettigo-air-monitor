@@ -33,6 +33,7 @@ RENAME_KEY_MAP: Final[list[tuple[str, str]]] = [
     ("sds_p1", "sds011_p1"),
     ("sds_p2", "sds011_p2"),
     ("temperature", "dht22_temperature"),
+    ("ambient_light", "bh1750_illuminance"),
 ]
 
 IGNORE_KEYS = ("GPS_date", "GPS_time")

@@ -29,6 +29,7 @@ class ConnectionOptions:
 class NAMSensors:
     """Data class for NAM sensors."""
 
+    bh1750_illuminance: int | None
     bme280_humidity: float | None
     bme280_pressure: float | None
     bme280_temperature: float | None
