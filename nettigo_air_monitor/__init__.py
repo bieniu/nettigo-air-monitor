@@ -99,8 +99,9 @@ class NettigoAirMonitor:
         for key, value in result.items():
             if "pressure" in key and value is not None:
                 result[key] = value / 100
-            if key == "ambient_light" and value == -1:
-                result.pop(key)
+
+        if result.get("ambient_light") == -1:
+            result.pop("ambient_light")
 
         for old_key, new_key in RENAME_KEY_MAP:
             if result.get(old_key) is not None:
