@@ -411,3 +411,30 @@ async def test_retry_fail(exc: Exception) -> None:
     assert sleep_mock.call_args_list[3][0][0] == 20
 
     assert "RetryError" in str(excinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_illuminance_wrong_value() -> None:
+    """Test with wrong value for illuminance."""
+    session = ClientSession()
+    options = ConnectionOptions(VALID_IP)
+
+    data = {
+        "software_version": "NAMF-2020-36",
+        "age": "144",
+        "measurements": "285",
+        "uptime": "45632",
+        "sensordatavalues": [{"value_type": "ambient_light", "value": "-1"}],
+    }
+
+    with aioresponses() as session_mock:
+        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
+        session_mock.get(DATA_JSON_URL, payload=data)
+        session_mock.get(VALUES_URL, payload=VALUES)
+
+        nam = await NettigoAirMonitor.create(session, options)
+        sensors = await nam.async_update()
+
+    await session.close()
+
+    assert sensors.bh1750_illuminance is None
