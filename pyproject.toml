@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name        = "nettigo_air_monitor"
-version     = "4.0.0"
+version     = "4.1.0"
 license     = {text = "Apache-2.0"}
 description = "Python wrapper for getting air quality data from Nettigo Air Monitor devices."
 readme      = "README.md"
