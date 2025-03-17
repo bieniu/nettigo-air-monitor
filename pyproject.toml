@@ -69,7 +69,6 @@ lint.ignore = [
     "D213",     # Multi-line docstring summary should start at the second line
     "EM101",    # Exception must not use a string literal, assign to variable first
     "EM102",    # Exception must not use an f-string literal, assign to variable first
-    "ISC001",   # Single line implicit string concatenation
     "TRY003",   # Avoid specifying long messages outside the exception class
 ]
 
