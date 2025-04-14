@@ -1,4 +1,0 @@
-aiohttp>=3.9.4
-aqipy-atmotech
-dacite>=1.7.0
-tenacity
