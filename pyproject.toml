@@ -106,7 +106,6 @@ python =
 commands =
   pytest --timeout=30 --cov=nettigo_air_monitor --cov-report=xml {posargs} --error-for-skips
 deps =
-  -rrequirements.txt
   -rrequirements-test.txt
 
 [testenv:lint]
