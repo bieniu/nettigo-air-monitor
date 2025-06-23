@@ -24,6 +24,7 @@ VALID_IP = "192.168.172.12"
 INVALID_HOST = "http://nam.org"
 
 VALUES = "MAC: AA:BB:CC:DD:EE:FF<br/>"
+LUFDATA_INFO_VALUES = ">ID: 1122334 (aabbccddeeff) <br />"
 
 DATA_JSON_URL = "http://192.168.172.12/data.json"
 CONFIG_URL = "http://192.168.172.12/config"
@@ -431,3 +432,28 @@ async def test_illuminance_wrong_value() -> None:
     await session.close()
 
     assert sensors.bh1750_illuminance is None
+
+
+@pytest.mark.asyncio
+async def test_luftdaten_info_firmware(
+    snapshot: SnapshotAssertion, luftdaten_info_data: dict[str, Any]
+) -> None:
+    """Test Luftdaten.info firmware."""
+    session = ClientSession()
+    options = ConnectionOptions(VALID_IP)
+
+    with aioresponses() as session_mock:
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(DATA_JSON_URL, payload=luftdaten_info_data)
+        session_mock.get(VALUES_URL, payload=LUFDATA_INFO_VALUES)
+
+        nam = await NettigoAirMonitor.create(session, options)
+        mac = await nam.async_get_mac_address()
+        sensors = await nam.async_update()
+
+    await session.close()
+
+    assert mac == "AA:BB:CC:DD:EE:FF"
+
+    assert nam.software_version == "NRZ-2024-135"
+    assert sensors == snapshot

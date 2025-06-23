@@ -31,3 +31,10 @@ class SnapshotExtension(AmberSnapshotExtension):
         """Return the directory for the snapshot files."""
         test_dir = Path(test_location.filepath).parent
         return str(test_dir.joinpath("snapshots"))
+
+
+@pytest.fixture
+def luftdaten_info_data() -> dict[str, Any]:
+    """Return valid data from the fixture file."""
+    with open("tests/fixtures/luftdaten_info_data.json", encoding="utf-8") as file:
+        return json.load(file)
