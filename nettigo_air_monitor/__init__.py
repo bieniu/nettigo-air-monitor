@@ -7,7 +7,12 @@ import re
 from http import HTTPStatus
 from typing import Any
 
-from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
+from aiohttp import (
+    ClientConnectorError,
+    ClientResponse,
+    ClientResponseError,
+    ClientSession,
+)
 from aqipy import caqi_eu
 from dacite import from_dict
 from tenacity import (
@@ -75,12 +80,12 @@ class NettigoAirMonitor:
         _LOGGER.debug("Initializing device %s", self.host)
 
         try:
-            config = await self.async_check_credentials()
+            resp = await self.async_check_credentials()
         except AuthFailedError:
             self._auth_enabled = True
         else:
-            self._auth_enabled = config["www_basicauth_enabled"]
-            self._software_version = config.get("SOFTWARE_VERSION")
+            if resp.request_info.headers.get("Authorization"):
+                self._auth_enabled = True
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -109,7 +114,7 @@ class NettigoAirMonitor:
 
         return result
 
-    async def _async_http_request(self, method: str, url: str) -> Any:
+    async def _async_http_request(self, method: str, url: str) -> ClientResponse:
         """Retrieve data from the device."""
         try:
             _LOGGER.debug("Requesting %s, method: %s", url, method)
@@ -133,6 +138,7 @@ class NettigoAirMonitor:
             ) from error
 
         _LOGGER.debug("Data retrieved from %s, status: %s", self.host, resp.status)
+
         if resp.status != HTTPStatus.OK.value:
             raise ApiError(f"Invalid response from device {self.host}: {resp.status}")
 
@@ -201,16 +207,14 @@ class NettigoAirMonitor:
 
         return mac[0]
 
-    async def async_check_credentials(self) -> Any:
-        """Request config.json to check credentials."""
+    async def async_check_credentials(self) -> ClientResponse:
+        """Request config to check credentials."""
         url = self._construct_url(ATTR_CONFIG, host=self.host)
 
         try:
-            resp = await self._async_http_request("get", url)
+            return await self._async_http_request("get", url)
         except NotRespondingError as error:
             raise ApiError(error.status) from error
-
-        return await resp.json()
 
     @property
     def software_version(self) -> str | None:
