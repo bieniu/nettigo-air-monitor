@@ -38,4 +38,4 @@ RENAME_KEY_MAP: Final[list[tuple[str, str]]] = [
 
 IGNORE_KEYS = ("GPS_date", "GPS_time")
 
-MAC_PATTERN: Final[str] = r"([0-9a-fA-F]{2}[:]){5}([0-9a-fA-F]{2})"
+MAC_PATTERN: Final[str] = r"(?:[0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}|\([0-9a-fA-F]{12}\)"

@@ -202,10 +202,11 @@ class NettigoAirMonitor:
 
         data = await resp.text()
 
-        if not (mac := re.search(MAC_PATTERN, data)):
+        if not (match := re.search(MAC_PATTERN, data)):
             raise CannotGetMacError("Cannot get MAC address from device")
 
-        return mac[0]
+        mac = match.group(0).replace("(", "").replace(")", "").replace(":", "").upper()
+        return ":".join(mac[i : i + 2] for i in range(0, 12, 2))
 
     async def async_check_credentials(self) -> ClientResponse:
         """Request config to check credentials."""
