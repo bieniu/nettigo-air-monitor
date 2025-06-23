@@ -26,7 +26,7 @@ INVALID_HOST = "http://nam.org"
 VALUES = "MAC: AA:BB:CC:DD:EE:FF<br/>"
 
 DATA_JSON_URL = "http://192.168.172.12/data.json"
-CONFIG_JSON_URL = "http://192.168.172.12/config.json"
+CONFIG_URL = "http://192.168.172.12/config"
 VALUES_URL = "http://192.168.172.12/values"
 
 
@@ -39,7 +39,7 @@ async def test_valid_data(
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
         session_mock.get(DATA_JSON_URL, payload=valid_data)
         session_mock.get(VALUES_URL, payload=VALUES)
 
@@ -67,7 +67,7 @@ async def test_caqi_value(snapshot: SnapshotAssertion) -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
         session_mock.get(DATA_JSON_URL, payload=data)
         session_mock.get(VALUES_URL, payload=VALUES)
 
@@ -88,7 +88,7 @@ async def test_valid_data_with_auth(
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": True})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
         session_mock.get(DATA_JSON_URL, payload=valid_data)
         session_mock.get(VALUES_URL, payload=VALUES)
 
@@ -112,7 +112,7 @@ async def test_auth_failed() -> None:
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -140,7 +140,7 @@ async def test_auth_enabled() -> None:
 
     with aioresponses() as session_mock:
         session_mock.get(
-            CONFIG_JSON_URL,
+            CONFIG_URL,
             exception=ClientResponseError(
                 Mock(), Mock(), status=HTTPStatus.UNAUTHORIZED.value
             ),
@@ -161,7 +161,7 @@ async def test_http_404_code() -> None:
 
     with aioresponses() as session_mock:
         session_mock.get(
-            CONFIG_JSON_URL,
+            CONFIG_URL,
             exception=ClientResponseError(
                 Mock(), Mock(), status=HTTPStatus.NOT_FOUND.value
             ),
@@ -181,7 +181,7 @@ async def test_api_error() -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -205,7 +205,7 @@ async def test_invalid_sensor_data() -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -227,7 +227,7 @@ async def test_cannot_get_mac() -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -249,7 +249,7 @@ async def test_init_device_not_repond() -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, exception=TimeoutError(Mock(), Mock()))
+        session_mock.get(CONFIG_URL, exception=TimeoutError(Mock(), Mock()))
 
         with pytest.raises(ApiError) as excinfo:
             await NettigoAirMonitor.create(session, options)
@@ -260,13 +260,13 @@ async def test_init_device_not_repond() -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_ma_device_not_repond() -> None:
+async def test_get_mac_device_not_repond() -> None:
     """Test get_mac when device is not responding."""
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -302,7 +302,7 @@ async def test_post_methods(method: str, endpoint: str) -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -334,7 +334,7 @@ async def test_post_methods_fail(method: str, endpoint: str) -> None:
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": True})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -362,11 +362,8 @@ async def test_retry_success(valid_data: dict[str, Any], exc: Exception) -> None
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock, patch("asyncio.sleep") as sleep_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
-        session_mock.get(DATA_JSON_URL, exception=exc)
-        session_mock.get(DATA_JSON_URL, exception=exc)
-        session_mock.get(DATA_JSON_URL, exception=exc)
-        session_mock.get(DATA_JSON_URL, exception=exc)
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(DATA_JSON_URL, exception=exc, repeat=4)
         session_mock.get(DATA_JSON_URL, payload=valid_data)
 
         nam = await NettigoAirMonitor.create(session, options)
@@ -391,12 +388,8 @@ async def test_retry_fail(exc: Exception) -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock, patch("asyncio.sleep") as sleep_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
-        session_mock.get(DATA_JSON_URL, exception=exc)
-        session_mock.get(DATA_JSON_URL, exception=exc)
-        session_mock.get(DATA_JSON_URL, exception=exc)
-        session_mock.get(DATA_JSON_URL, exception=exc)
-        session_mock.get(DATA_JSON_URL, exception=exc)
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(DATA_JSON_URL, exception=exc, repeat=5)
 
         nam = await NettigoAirMonitor.create(session, options)
         with pytest.raises(RetryError) as excinfo:
@@ -428,7 +421,7 @@ async def test_illuminance_wrong_value() -> None:
     }
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_JSON_URL, payload={"www_basicauth_enabled": False})
+        session_mock.get(CONFIG_URL, payload="lorem ipsum")
         session_mock.get(DATA_JSON_URL, payload=data)
         session_mock.get(VALUES_URL, payload=VALUES)
 

@@ -84,7 +84,11 @@ class NettigoAirMonitor:
         except AuthFailedError:
             self._auth_enabled = True
         else:
-            if resp.request_info.headers.get("Authorization"):
+            if (
+                self._options.username
+                and self._options.password
+                and resp.status == HTTPStatus.OK.value
+            ):
                 self._auth_enabled = True
 
     @staticmethod
