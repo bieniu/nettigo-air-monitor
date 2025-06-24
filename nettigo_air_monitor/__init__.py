@@ -79,17 +79,7 @@ class NettigoAirMonitor:
         """Initialize."""
         _LOGGER.debug("Initializing device %s", self.host)
 
-        try:
-            resp = await self.async_check_credentials()
-        except AuthFailedError:
-            self._auth_enabled = True
-        else:
-            if (
-                self._options.username
-                and self._options.password
-                and resp.status == HTTPStatus.OK.value
-            ):
-                self._auth_enabled = True
+        self._auth_enabled = await self.async_check_credentials()
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -212,14 +202,25 @@ class NettigoAirMonitor:
         mac = match.group(0).replace("(", "").replace(")", "").replace(":", "").upper()
         return ":".join(mac[i : i + 2] for i in range(0, 12, 2))
 
-    async def async_check_credentials(self) -> ClientResponse:
-        """Request config to check credentials."""
+    async def async_check_credentials(self) -> bool:
+        """Return True if basic auth is enabled."""
         url = self._construct_url(ATTR_CONFIG, host=self.host)
 
         try:
-            return await self._async_http_request("get", url)
+            resp = await self._async_http_request("get", url)
+        except AuthFailedError:
+            return True
         except NotRespondingError as error:
             raise ApiError(error.status) from error
+        else:
+            if (
+                self._options.username
+                and self._options.password
+                and resp.status == HTTPStatus.OK.value
+            ):
+                return True
+
+        return False
 
     @property
     def software_version(self) -> str | None:
