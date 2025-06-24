@@ -30,7 +30,6 @@ async def main() -> None:
 
         try:
             data = await nam.async_update()
-            mac = await nam.async_get_mac_address()
         except (
             TimeoutError,
             ApiError,
@@ -44,7 +43,7 @@ async def main() -> None:
         else:
             print(f"Auth enabled: {nam.auth_enabled}")
             print(f"Firmware: {nam.software_version}")
-            print(f"MAC address: {mac}")
+            print(f"MAC address: {nam.mac}")
             print(f"Latitude: {nam.latitude}, Longitude: {nam.longitude}")
             print(f"Data: {data}")
 

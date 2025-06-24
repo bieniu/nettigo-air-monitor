@@ -201,15 +201,6 @@ class NettigoAirMonitor:
         mac = match.group(0).replace("(", "").replace(")", "").replace(":", "").upper()
         return ":".join(mac[i : i + 2] for i in range(0, 12, 2))
 
-    async def async_check_credentials(self) -> None:
-        """Get /config to check credentials."""
-        url = self._construct_url(ATTR_CONFIG, host=self.host)
-
-        try:
-            await self._async_http_request("get", url)
-        except NotRespondingError as error:
-            raise ApiError(error.status) from error
-
     @property
     def software_version(self) -> str | None:
         """Return software version."""
