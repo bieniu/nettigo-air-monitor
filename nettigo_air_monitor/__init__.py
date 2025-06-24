@@ -198,7 +198,7 @@ class NettigoAirMonitor:
         if not (match := re.search(MAC_PATTERN, data)):
             raise CannotGetMacError("Cannot get MAC address from device")
 
-        mac = match.group(0).replace("(", "").replace(")", "").replace(":", "").upper()
+        mac = match.group(0).replace("(", "").replace(")", "").replace(":", "").lower()
         return ":".join(mac[i : i + 2] for i in range(0, 12, 2))
 
     @property

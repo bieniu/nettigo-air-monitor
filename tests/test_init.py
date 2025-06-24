@@ -48,7 +48,7 @@ async def test_valid_data(
 
     await session.close()
 
-    assert nam.mac == "AA:BB:CC:DD:EE:FF"
+    assert nam.mac == "aa:bb:cc:dd:ee:ff"
     assert nam.software_version == "NAMF-2020-36"
     assert nam.latitude == 52.284921
     assert nam.longitude == 20.889263
@@ -93,7 +93,7 @@ async def test_valid_data_with_auth(
 
     await session.close()
 
-    assert nam.mac == "AA:BB:CC:DD:EE:FF"
+    assert nam.mac == "aa:bb:cc:dd:ee:ff"
     assert nam.software_version == "NAMF-2020-36"
     assert sensors == snapshot
 
@@ -432,6 +432,6 @@ async def test_luftdaten_firmware(
 
     await session.close()
 
-    assert nam.mac == "AA:BB:CC:DD:EE:FF"
+    assert nam.mac == "aa:bb:cc:dd:ee:ff"
     assert nam.software_version == "NRZ-2024-135"
     assert sensors == snapshot
