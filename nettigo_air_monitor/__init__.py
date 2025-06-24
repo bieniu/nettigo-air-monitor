@@ -32,7 +32,6 @@ from .const import (
     ATTR_OTA,
     ATTR_RESTART,
     ATTR_UPTIME,
-    ATTR_VALUES,
     DEFAULT_TIMEOUT,
     ENDPOINTS,
     IGNORE_KEYS,
@@ -64,6 +63,7 @@ class NettigoAirMonitor:
         self._latitude: float | None = None
         self._longitude: float | None = None
         self._altitude: float | None = None
+        self._mac: str
 
     @classmethod
     async def create(
@@ -78,7 +78,7 @@ class NettigoAirMonitor:
         """Initialize."""
         _LOGGER.debug("Initializing device %s", self.host)
 
-        await self.async_check_credentials()
+        self._mac = await self.async_get_mac_address()
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -186,7 +186,7 @@ class NettigoAirMonitor:
 
     async def async_get_mac_address(self) -> str:
         """Retrieve the device MAC address."""
-        url = self._construct_url(ATTR_VALUES, host=self.host)
+        url = self._construct_url(ATTR_CONFIG, host=self.host)
 
         try:
             resp = await self._async_http_request("get", url)
@@ -214,6 +214,11 @@ class NettigoAirMonitor:
     def software_version(self) -> str | None:
         """Return software version."""
         return self._software_version
+
+    @property
+    def mac(self) -> str:
+        """Return device MAC address."""
+        return self._mac
 
     async def async_restart(self) -> None:
         """Restart the device."""

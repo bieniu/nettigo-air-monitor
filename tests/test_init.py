@@ -23,8 +23,8 @@ from nettigo_air_monitor import (
 VALID_IP = "192.168.172.12"
 INVALID_HOST = "http://nam.org"
 
-VALUES = "MAC: AA:BB:CC:DD:EE:FF<br/>"
-LUFDATA_INFO_VALUES = ">ID: 1122334 (aabbccddeeff) <br />"
+CONFIG_HEADER_NETTIGO = "MAC: AA:BB:CC:DD:EE:FF<br/>"
+CONFIG_HEADER_LUFTDATA = ">ID: 1122334 (aabbccddeeff) <br />"
 
 DATA_JSON_URL = "http://192.168.172.12/data.json"
 CONFIG_URL = "http://192.168.172.12/config"
@@ -40,18 +40,15 @@ async def test_valid_data(
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
         session_mock.get(DATA_JSON_URL, payload=valid_data)
-        session_mock.get(VALUES_URL, payload=VALUES)
 
         nam = await NettigoAirMonitor.create(session, options)
-        mac = await nam.async_get_mac_address()
         sensors = await nam.async_update()
 
     await session.close()
 
-    assert mac == "AA:BB:CC:DD:EE:FF"
-
+    assert nam.mac == "AA:BB:CC:DD:EE:FF"
     assert nam.software_version == "NAMF-2020-36"
     assert nam.latitude == 52.284921
     assert nam.longitude == 20.889263
@@ -68,9 +65,8 @@ async def test_caqi_value(snapshot: SnapshotAssertion) -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
         session_mock.get(DATA_JSON_URL, payload=data)
-        session_mock.get(VALUES_URL, payload=VALUES)
 
         nam = await NettigoAirMonitor.create(session, options)
         sensors = await nam.async_update()
@@ -89,18 +85,15 @@ async def test_valid_data_with_auth(
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
         session_mock.get(DATA_JSON_URL, payload=valid_data)
-        session_mock.get(VALUES_URL, payload=VALUES)
 
         nam = await NettigoAirMonitor.create(session, options)
-        mac = await nam.async_get_mac_address()
         sensors = await nam.async_update()
 
     await session.close()
 
-    assert mac == "AA:BB:CC:DD:EE:FF"
-
+    assert nam.mac == "AA:BB:CC:DD:EE:FF"
     assert nam.software_version == "NAMF-2020-36"
     assert sensors == snapshot
 
@@ -112,7 +105,7 @@ async def test_auth_failed() -> None:
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -181,7 +174,7 @@ async def test_api_error() -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -205,7 +198,7 @@ async def test_invalid_sensor_data() -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -229,13 +222,8 @@ async def test_cannot_get_mac() -> None:
     with aioresponses() as session_mock:
         session_mock.get(CONFIG_URL, payload="lorem ipsum")
 
-        nam = await NettigoAirMonitor.create(session, options)
-
-    with aioresponses() as session_mock:
-        session_mock.get(VALUES_URL, payload="lorem ipsum")
-
         with pytest.raises(CannotGetMacError) as excinfo:
-            await nam.async_get_mac_address()
+            await NettigoAirMonitor.create(session, options)
 
     assert str(excinfo.value) == "Cannot get MAC address from device"
 
@@ -266,15 +254,10 @@ async def test_get_mac_device_not_repond() -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
-
-        nam = await NettigoAirMonitor.create(session, options)
-
-    with aioresponses() as session_mock:
-        session_mock.get(VALUES_URL, exception=TimeoutError(Mock(), Mock()))
+        session_mock.get(CONFIG_URL, exception=TimeoutError(Mock(), Mock()))
 
         with pytest.raises(ApiError) as excinfo:
-            await nam.async_get_mac_address()
+            await NettigoAirMonitor.create(session, options)
 
     await session.close()
 
@@ -302,7 +285,7 @@ async def test_post_methods(method: str, endpoint: str) -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -334,7 +317,7 @@ async def test_post_methods_fail(method: str, endpoint: str) -> None:
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
 
         nam = await NettigoAirMonitor.create(session, options)
 
@@ -362,7 +345,7 @@ async def test_retry_success(valid_data: dict[str, Any], exc: Exception) -> None
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock, patch("asyncio.sleep") as sleep_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
         session_mock.get(DATA_JSON_URL, exception=exc, repeat=4)
         session_mock.get(DATA_JSON_URL, payload=valid_data)
 
@@ -388,7 +371,7 @@ async def test_retry_fail(exc: Exception) -> None:
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock, patch("asyncio.sleep") as sleep_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
         session_mock.get(DATA_JSON_URL, exception=exc, repeat=5)
 
         nam = await NettigoAirMonitor.create(session, options)
@@ -421,9 +404,8 @@ async def test_illuminance_wrong_value() -> None:
     }
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
         session_mock.get(DATA_JSON_URL, payload=data)
-        session_mock.get(VALUES_URL, payload=VALUES)
 
         nam = await NettigoAirMonitor.create(session, options)
         sensors = await nam.async_update()
@@ -442,17 +424,14 @@ async def test_luftdaten_firmware(
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload="lorem ipsum")
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_LUFTDATA)
         session_mock.get(DATA_JSON_URL, payload=luftdaten_data)
-        session_mock.get(VALUES_URL, payload=LUFDATA_INFO_VALUES)
 
         nam = await NettigoAirMonitor.create(session, options)
-        mac = await nam.async_get_mac_address()
         sensors = await nam.async_update()
 
     await session.close()
 
-    assert mac == "AA:BB:CC:DD:EE:FF"
-
+    assert nam.mac == "AA:BB:CC:DD:EE:FF"
     assert nam.software_version == "NRZ-2024-135"
     assert sensors == snapshot
