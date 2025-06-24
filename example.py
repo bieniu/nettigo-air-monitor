@@ -41,7 +41,6 @@ async def main() -> None:
         ) as error:
             print(f"Error: {error}")
         else:
-            print(f"Auth enabled: {nam.auth_enabled}")
             print(f"Firmware: {nam.software_version}")
             print(f"MAC address: {nam.mac}")
             print(f"Latitude: {nam.latitude}, Longitude: {nam.longitude}")
