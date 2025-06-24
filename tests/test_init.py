@@ -435,16 +435,16 @@ async def test_illuminance_wrong_value() -> None:
 
 
 @pytest.mark.asyncio
-async def test_luftdaten_info_firmware(
-    snapshot: SnapshotAssertion, luftdaten_info_data: dict[str, Any]
+async def test_luftdateno_firmware(
+    snapshot: SnapshotAssertion, luftdaten_data: dict[str, Any]
 ) -> None:
-    """Test Luftdaten.info firmware."""
+    """Test Luftdaten firmware."""
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
         session_mock.get(CONFIG_URL, payload="lorem ipsum")
-        session_mock.get(DATA_JSON_URL, payload=luftdaten_info_data)
+        session_mock.get(DATA_JSON_URL, payload=luftdaten_data)
         session_mock.get(VALUES_URL, payload=LUFDATA_INFO_VALUES)
 
         nam = await NettigoAirMonitor.create(session, options)
