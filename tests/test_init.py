@@ -102,7 +102,6 @@ async def test_valid_data_with_auth(
     assert mac == "AA:BB:CC:DD:EE:FF"
 
     assert nam.software_version == "NAMF-2020-36"
-    assert nam.auth_enabled is True
     assert sensors == snapshot
 
 
@@ -146,12 +145,12 @@ async def test_auth_enabled() -> None:
                 Mock(), Mock(), status=HTTPStatus.UNAUTHORIZED.value
             ),
         )
-
-        nam = await NettigoAirMonitor.create(session, options)
+        with pytest.raises(AuthFailedError) as excinfo:
+            await NettigoAirMonitor.create(session, options)
 
     await session.close()
 
-    assert nam.auth_enabled is True
+    assert str(excinfo.value) == "Authorization has failed"
 
 
 @pytest.mark.asyncio
@@ -435,7 +434,7 @@ async def test_illuminance_wrong_value() -> None:
 
 
 @pytest.mark.asyncio
-async def test_luftdateno_firmware(
+async def test_luftdaten_firmware(
     snapshot: SnapshotAssertion, luftdaten_data: dict[str, Any]
 ) -> None:
     """Test Luftdaten firmware."""
