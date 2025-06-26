@@ -7,7 +7,12 @@ import re
 from http import HTTPStatus
 from typing import Any
 
-from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
+from aiohttp import (
+    ClientConnectorError,
+    ClientResponse,
+    ClientResponseError,
+    ClientSession,
+)
 from aqipy import caqi_eu
 from dacite import from_dict
 from tenacity import (
@@ -27,7 +32,6 @@ from .const import (
     ATTR_OTA,
     ATTR_RESTART,
     ATTR_UPTIME,
-    ATTR_VALUES,
     DEFAULT_TIMEOUT,
     ENDPOINTS,
     IGNORE_KEYS,
@@ -56,10 +60,10 @@ class NettigoAirMonitor:
         self._session = session
         self._software_version: str | None = None
         self._update_errors: int = 0
-        self._auth_enabled: bool = False
         self._latitude: float | None = None
         self._longitude: float | None = None
         self._altitude: float | None = None
+        self._mac: str
 
     @classmethod
     async def create(
@@ -74,13 +78,7 @@ class NettigoAirMonitor:
         """Initialize."""
         _LOGGER.debug("Initializing device %s", self.host)
 
-        try:
-            config = await self.async_check_credentials()
-        except AuthFailedError:
-            self._auth_enabled = True
-        else:
-            self._auth_enabled = config["www_basicauth_enabled"]
-            self._software_version = config.get("SOFTWARE_VERSION")
+        self._mac = await self.async_get_mac_address()
 
     @staticmethod
     def _construct_url(arg: str, **kwargs: str) -> str:
@@ -109,7 +107,7 @@ class NettigoAirMonitor:
 
         return result
 
-    async def _async_http_request(self, method: str, url: str) -> Any:
+    async def _async_http_request(self, method: str, url: str) -> ClientResponse:
         """Retrieve data from the device."""
         try:
             _LOGGER.debug("Requesting %s, method: %s", url, method)
@@ -133,6 +131,7 @@ class NettigoAirMonitor:
             ) from error
 
         _LOGGER.debug("Data retrieved from %s, status: %s", self.host, resp.status)
+
         if resp.status != HTTPStatus.OK.value:
             raise ApiError(f"Invalid response from device {self.host}: {resp.status}")
 
@@ -187,7 +186,7 @@ class NettigoAirMonitor:
 
     async def async_get_mac_address(self) -> str:
         """Retrieve the device MAC address."""
-        url = self._construct_url(ATTR_VALUES, host=self.host)
+        url = self._construct_url(ATTR_CONFIG, host=self.host)
 
         try:
             resp = await self._async_http_request("get", url)
@@ -196,21 +195,11 @@ class NettigoAirMonitor:
 
         data = await resp.text()
 
-        if not (mac := re.search(MAC_PATTERN, data)):
+        if not (match := re.search(MAC_PATTERN, data)):
             raise CannotGetMacError("Cannot get MAC address from device")
 
-        return mac[0]
-
-    async def async_check_credentials(self) -> Any:
-        """Request config.json to check credentials."""
-        url = self._construct_url(ATTR_CONFIG, host=self.host)
-
-        try:
-            resp = await self._async_http_request("get", url)
-        except NotRespondingError as error:
-            raise ApiError(error.status) from error
-
-        return await resp.json()
+        mac = match.group(0).replace("(", "").replace(")", "").replace(":", "").lower()
+        return ":".join(mac[i : i + 2] for i in range(0, 12, 2))
 
     @property
     def software_version(self) -> str | None:
@@ -218,9 +207,9 @@ class NettigoAirMonitor:
         return self._software_version
 
     @property
-    def auth_enabled(self) -> bool:
-        """Return True if basic auth is enabled."""
-        return self._auth_enabled
+    def mac(self) -> str:
+        """Return device MAC address."""
+        return self._mac
 
     async def async_restart(self) -> None:
         """Restart the device."""

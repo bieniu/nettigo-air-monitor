@@ -13,16 +13,14 @@ ATTR_OTA: Final[str] = "ota"
 ATTR_RESTART: Final[str] = "restart"
 ATTR_SENSOR_VALUES: Final[str] = "sensordatavalues"
 ATTR_UPTIME: Final[str] = "uptime"
-ATTR_VALUES: Final[str] = "values"
 
 DEFAULT_TIMEOUT: Final[ClientTimeout] = ClientTimeout(total=5)
 
 ENDPOINTS: Final[dict[str, str]] = {
-    ATTR_CONFIG: "http://{host}/config.json",
+    ATTR_CONFIG: "http://{host}/config",
     ATTR_DATA: "http://{host}/data.json",
     ATTR_OTA: "http://{host}/ota",
     ATTR_RESTART: "http://{host}/reset",
-    ATTR_VALUES: "http://{host}/values",
 }
 
 RENAME_KEY_MAP: Final[list[tuple[str, str]]] = [
@@ -38,4 +36,4 @@ RENAME_KEY_MAP: Final[list[tuple[str, str]]] = [
 
 IGNORE_KEYS = ("GPS_date", "GPS_time")
 
-MAC_PATTERN: Final[str] = r"([0-9a-fA-F]{2}[:]){5}([0-9a-fA-F]{2})"
+MAC_PATTERN: Final[str] = r"(?:[0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}|\([0-9a-fA-F]{12}\)"
