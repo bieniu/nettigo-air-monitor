@@ -18,6 +18,11 @@ jobs:
           activate-environment: true
           python-version: 3.13
 
+      - name: Set package version
+        run: |
+          version="${{ github.event.release.tag_name }}"
+          sed -i "s/^version = \".*\"/version = \"${version}\"/" pyproject.toml
+
       - name: Build
         run: uv build
 
