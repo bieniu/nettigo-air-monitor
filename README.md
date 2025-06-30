@@ -9,7 +9,7 @@
 
 Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 
-Luftdaten (Community.Sensor) firmware is also supported.
+[Sensor.Community firmware](https://github.com/opendata-stuttgart/sensors-software) is also supported.
 
 
 ## How to use package
