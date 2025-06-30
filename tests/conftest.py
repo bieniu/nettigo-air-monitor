@@ -34,7 +34,7 @@ class SnapshotExtension(AmberSnapshotExtension):
 
 
 @pytest.fixture
-def luftdaten_data() -> dict[str, Any]:
+def sensor_community_data() -> dict[str, Any]:
     """Return valid data from the fixture file."""
-    with open("tests/fixtures/luftdaten_data.json", encoding="utf-8") as file:
+    with open("tests/fixtures/sensor_community_data.json", encoding="utf-8") as file:
         return json.load(file)

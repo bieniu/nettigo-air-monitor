@@ -24,7 +24,7 @@ VALID_IP = "192.168.172.12"
 INVALID_HOST = "http://nam.org"
 
 CONFIG_HEADER_NETTIGO = "MAC: AA:BB:CC:DD:EE:FF<br/>"
-CONFIG_HEADER_LUFTDATA = ">ID: 1122334 (aabbccddeeff) <br />"
+CONFIG_HEADER_SENSOR_COMMUNITY = ">ID: 1122334 (aabbccddeeff) <br />"
 
 DATA_JSON_URL = "http://192.168.172.12/data.json"
 CONFIG_URL = "http://192.168.172.12/config"
@@ -416,16 +416,16 @@ async def test_illuminance_wrong_value() -> None:
 
 
 @pytest.mark.asyncio
-async def test_luftdaten_firmware(
-    snapshot: SnapshotAssertion, luftdaten_data: dict[str, Any]
+async def test_sensor_community_firmware(
+    snapshot: SnapshotAssertion, sensor_community_data: dict[str, Any]
 ) -> None:
-    """Test Luftdaten firmware."""
+    """Test Sensor.Community firmware."""
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
     with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_LUFTDATA)
-        session_mock.get(DATA_JSON_URL, payload=luftdaten_data)
+        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_SENSOR_COMMUNITY)
+        session_mock.get(DATA_JSON_URL, payload=sensor_community_data)
 
         nam = await NettigoAirMonitor.create(session, options)
         sensors = await nam.async_update()
