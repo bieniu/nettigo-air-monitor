@@ -9,6 +9,8 @@
 
 Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 
+[Sensor.Community firmware](https://github.com/opendata-stuttgart/sensors-software) is also supported.
+
 
 ## How to use package
 
@@ -18,6 +20,7 @@ import asyncio
 import logging
 
 from aiohttp import ClientConnectorError, ClientError, ClientSession
+from tenacity import RetryError
 
 from nettigo_air_monitor import (
     ApiError,
@@ -34,7 +37,7 @@ USERNAME = "user"
 PASSWORD = "password"
 
 
-async def main():
+async def main() -> None:
     """Run main function."""
     options = ConnectionOptions(host=HOST, username=USERNAME, password=PASSWORD)
 
@@ -43,20 +46,20 @@ async def main():
 
         try:
             data = await nam.async_update()
-            mac = await nam.async_get_mac_address()
         except (
+            TimeoutError,
             ApiError,
             AuthFailedError,
             ClientConnectorError,
             ClientError,
             InvalidSensorDataError,
-            asyncio.TimeoutError,
+            RetryError,
         ) as error:
             print(f"Error: {error}")
         else:
-            print(f"Auth enabled: {nam.auth_enabled}")
             print(f"Firmware: {nam.software_version}")
-            print(f"MAC address: {mac}")
+            print(f"MAC address: {nam.mac}")
+            print(f"Latitude: {nam.latitude}, Longitude: {nam.longitude}")
             print(f"Data: {data}")
 
 
