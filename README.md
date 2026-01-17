@@ -71,6 +71,18 @@ loop.close()
 
 ```
 
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## How to create a dev environment
+
+```bash
+git clone https://github.com/bieniu/nettigo-air-monitor.git
+cd nettigo-air-monitor
+./scripts/setup-local-env.sh
+```
+
 [releases]: https://github.com/bieniu/nettigo-air-monitor/releases
 [releases-shield]: https://img.shields.io/github/release/bieniu/nettigo-air-monitor.svg?style=popout
 [pypi-releases]: https://pypi.org/project/nettigo-air-monitor/
