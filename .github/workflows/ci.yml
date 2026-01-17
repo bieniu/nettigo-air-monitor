@@ -16,8 +16,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.12"
           - "3.13"
+          - "3.14"
 
     steps:
       - name: Check out repository
@@ -46,7 +46,7 @@ jobs:
         run: pytest --timeout=30 --cov --cov-branch --cov-report=xml --error-for-skips
 
       - name: Upload coverage reports to Codecov
-        if: ${{ matrix.python-version }} == "3.13"
+        if: ${{ matrix.python-version }} == "3.14"
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
