@@ -1,3 +1,5 @@
+[![CI](https://img.shields.io/github/actions/workflow/status/bieniu/nettigo-air-monitor/ci.yml?branch=master&label=CI&logo=github&style=popout)](https://github.com/bieniu/imgw-pib/actions/workflows/ci.yml?query=branch%3Amaster)
+[![codecov](https://codecov.io/gh/bieniu/nettigo-air-monitor/graph/badge.svg?token=1ERNC3KBP7)](https://codecov.io/gh/bieniu/nettigo-air-monitor)
 [![GitHub Release][releases-shield]][releases]
 [![PyPI][pypi-releases-shield]][pypi-releases]
 [![PyPI - Downloads][pypi-downloads]][pypi-statistics]
