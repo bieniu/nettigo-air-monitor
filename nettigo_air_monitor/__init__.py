@@ -171,11 +171,12 @@ class NettigoAirMonitor:
             sensors[ATTR_UPTIME] = int(data[ATTR_UPTIME])
 
         for sensor in ("pms", "sds011", "sps30"):
-            value, data = caqi_eu.get_caqi(
-                pm10_1h=sensors.get(f"{sensor}_p1"),
-                pm25_1h=sensors.get(f"{sensor}_p2"),
-                with_level=True,
-            )
+            args = {"with_level": True}
+            if pm10 := sensors.get(f"{sensor}_p1"):
+                args["pm10_1h"] = pm10
+            if pm25 := sensors.get(f"{sensor}_p2"):
+                args["pm25_1h"] = pm25
+            value, data = caqi_eu.get_caqi(**args)
             if value is not None and value > -1:
                 sensors[f"{sensor}_caqi"] = value
                 sensors[f"{sensor}_caqi_level"] = data["level"].replace(" ", "_")
