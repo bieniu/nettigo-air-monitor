@@ -7,4 +7,4 @@ python$PYTHON_VERSION -m uv venv venv --seed --python=$PYTHON_VERSION
 source venv/bin/activate
 pip install uv
 uv pip install . .[test] .[dev]
-pre-commit install
+prek install
