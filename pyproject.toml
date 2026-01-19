@@ -27,7 +27,7 @@ dependencies    = [
     "tenacity"
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
   "aioresponses==0.7.8",
   "prek==0.2.29",
