@@ -22,7 +22,7 @@ classifiers = [
 requires-python = ">=3.13"
 dependencies    = [
     "aiohttp>=3.9.4",
-    "aqipy-atmotech",
+    "aqipy-atmotech==0.1.5",
     "dacite>=1.7.0",
     "tenacity"
 ]
