@@ -18,6 +18,10 @@ updates:
           - "ruff"
           - "syrupy"
           - "ty"
+    ignore:
+      - dependency-name: "aiohttp"
+      - dependency-name: "tenacity"
+      - dependency-name: "dacite"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
