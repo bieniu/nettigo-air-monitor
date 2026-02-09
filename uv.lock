@@ -401,7 +401,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.9.4" },
-    { name = "aqipy-atmotech" },
+    { name = "aqipy-atmotech", specifier = "==0.1.5" },
     { name = "dacite", specifier = ">=1.7.0" },
     { name = "tenacity" },
 ]
