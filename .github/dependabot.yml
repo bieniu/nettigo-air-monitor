@@ -2,11 +2,11 @@ version: 2
 enable-beta-ecosystems: true
 
 multi-ecosystem-groups:
-  ruff:
+  ruff-linter:
     schedule:
       interval: "weekly"
 
-  ty:
+  ty-linter:
     schedule:
       interval: "weekly"
 
@@ -14,12 +14,12 @@ multi-ecosystem-groups:
 updates:
   - package-ecosystem: "uv"
     directory: "/"
-    multi-ecosystem-group: "ruff"
+    multi-ecosystem-group: "ruff-linter"
     patterns: ["ruff"]
 
   - package-ecosystem: "uv"
     directory: "/"
-    multi-ecosystem-group: "ty"
+    multi-ecosystem-group: "ty-linter"
     patterns: ["ty"]
 
   - package-ecosystem: "uv"
@@ -52,12 +52,12 @@ updates:
 
   - package-ecosystem: "pre-commit"
     directory: "/"
-    multi-ecosystem-group: "ruff"
+    multi-ecosystem-group: "ruff-linter"
     patterns: ["*ruff-pre-commit"]
 
   - package-ecosystem: "pre-commit"
     directory: "/"
-    multi-ecosystem-group: "ty"
+    multi-ecosystem-group: "ty-linter"
     patterns: ["*ty-pre-commit"]
 
   - package-ecosystem: "pre-commit"
