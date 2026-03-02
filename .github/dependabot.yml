@@ -1,7 +1,27 @@
 version: 2
 enable-beta-ecosystems: true
 
+multi-ecosystem-groups:
+  ruff:
+    schedule:
+      interval: "weekly"
+
+  ty:
+    schedule:
+      interval: "weekly"
+
+
 updates:
+  - package-ecosystem: "uv"
+    directory: "/"
+    multi-ecosystem-group: "ruff"
+    patterns: ["ruff"]
+
+  - package-ecosystem: "uv"
+    directory: "/"
+    multi-ecosystem-group: "ty"
+    patterns: ["ty"]
+
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
@@ -9,14 +29,14 @@ updates:
     groups:
       dev:
         patterns:
+          - "prek"
+      test:
+        patterns:
           - "aioresponses"
           - "freezegun"
-          - "prek"
           - "pytest"
           - "pytest-*"
-          - "ruff"
           - "syrupy"
-          - "ty"
     ignore:
       - dependency-name: "aiohttp"
       - dependency-name: "tenacity"
@@ -29,6 +49,16 @@ updates:
     groups:
       ci:
         patterns: ["*"]
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    multi-ecosystem-group: "ruff"
+    patterns: ["*ruff-pre-commit"]
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    multi-ecosystem-group: "ty"
+    patterns: ["*ty-pre-commit"]
 
   - package-ecosystem: "pre-commit"
     directory: "/"
