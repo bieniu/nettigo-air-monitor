@@ -9,14 +9,16 @@ updates:
     groups:
       dev:
         patterns:
+          - "prek"
+          - "ruff"
+          - "ty"
+      test:
+        patterns:
           - "aioresponses"
           - "freezegun"
-          - "prek"
           - "pytest"
           - "pytest-*"
-          - "ruff"
           - "syrupy"
-          - "ty"
     ignore:
       - dependency-name: "aiohttp"
       - dependency-name: "tenacity"
