@@ -34,7 +34,9 @@ tests/
 
 ```python
 # Always use the async factory — do NOT call __init__ directly
-nam = await NettigoAirMonitor.create(session: ClientSession, options: ConnectionOptions)
+session: ClientSession
+options: ConnectionOptions
+nam = await NettigoAirMonitor.create(session, options)
 
 # Properties (available after create())
 nam.host             # str
