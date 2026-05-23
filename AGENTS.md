@@ -59,7 +59,7 @@ mac: str = await nam.async_get_mac_address()
 @dataclass
 class ConnectionOptions:
     host: str
-    username: str | None = None   # both username+password required together
+    username: str | None = None   # requires password to also be set
     password: str | None = None
     auth: aiohttp.BasicAuth | None = None  # auto-set by __post_init__
 ```
