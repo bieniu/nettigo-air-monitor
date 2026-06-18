@@ -38,3 +38,9 @@ def sensor_community_data() -> dict[str, Any]:
     """Return valid data from the fixture file."""
     with open("tests/fixtures/sensor_community_data.json", encoding="utf-8") as file:
         return json.load(file)
+
+
+@pytest.fixture(autouse=True)
+def allow_aiointercept_to_mock_ip_hosts(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Route IP literal hosts through aiohttp's resolver for aiointercept."""
+    monkeypatch.setattr("aiohttp.connector.is_ip_address", lambda _host: False)

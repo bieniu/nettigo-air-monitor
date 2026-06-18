@@ -103,7 +103,7 @@ PMS (PM1/PM2.5/PM10 + CAQI), SDS011 (PM2.5/PM10 + CAQI), SHT3x, SPS30 (PM + CAQI
 ## Testing
 
 - Run with `pytest` (async tests use `pytest-asyncio`)
-- Mock HTTP via `aioresponses`; do not hit real endpoints in tests
+- Mock HTTP via `aiointercept`; do not hit real endpoints in tests
 - Test constants: `VALID_IP = "192.168.172.12"`, `CONFIG_HEADER_NETTIGO`, `CONFIG_HEADER_SENSOR_COMMUNITY`
 - Snapshots use `syrupy` (`tests/snapshots/`) — update with `pytest --snapshot-update` when output structures change
 - Update both snapshots and fixtures together when response shapes change
