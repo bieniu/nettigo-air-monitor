@@ -86,8 +86,8 @@ PMS (PM1/PM2.5/PM10 + CAQI), SDS011 (PM2.5/PM10 + CAQI), SHT3x, SPS30 (PM + CAQI
 ## Python and environment
 
 - Target Python: >=3.13 (also tested on 3.14)
-- Use the local venv in `./venv`
-- Activate with: `source venv/bin/activate`
+- Use the local venv in `./.venv`
+- Activate with: `source .venv/bin/activate`
 - `scripts/setup-local-env.sh` creates the venv, installs `uv`, then installs all dependency groups from `pyproject.toml`, then runs `prek install`
 - Package manager: `uv` — dependencies declared in `pyproject.toml`
 - Runtime deps: `aiohttp`, `aqipy-atmotech` (CAQI calculation), `dacite` (dict→dataclass), `tenacity` (retry)
