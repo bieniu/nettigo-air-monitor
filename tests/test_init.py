@@ -3,11 +3,11 @@
 import json
 from http import HTTPStatus
 from typing import Any
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
-from aiohttp import ClientConnectorError, ClientResponseError, ClientSession
-from aioresponses import aioresponses
+from aiohttp import ClientSession
+from aiointercept import aiointercept
 from syrupy import SnapshotAssertion
 from tenacity import RetryError
 
@@ -39,7 +39,7 @@ async def test_valid_data(
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
         session_mock.get(DATA_JSON_URL, payload=valid_data)
 
@@ -64,7 +64,7 @@ async def test_caqi_value(snapshot: SnapshotAssertion) -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
         session_mock.get(DATA_JSON_URL, payload=data)
 
@@ -84,7 +84,7 @@ async def test_valid_data_with_auth(
     session = ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
         session_mock.get(DATA_JSON_URL, payload=valid_data)
 
@@ -104,17 +104,15 @@ async def test_auth_failed() -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.post(
             "http://192.168.172.12/reset",
-            exception=ClientResponseError(
-                Mock(), Mock(), status=HTTPStatus.UNAUTHORIZED.value
-            ),
+            status=HTTPStatus.UNAUTHORIZED.value,
         )
 
         with pytest.raises(AuthFailedError) as excinfo:
@@ -131,12 +129,10 @@ async def test_auth_enabled() -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(
             CONFIG_URL,
-            exception=ClientResponseError(
-                Mock(), Mock(), status=HTTPStatus.UNAUTHORIZED.value
-            ),
+            status=HTTPStatus.UNAUTHORIZED.value,
         )
         with pytest.raises(AuthFailedError) as excinfo:
             await NettigoAirMonitor.create(session, options)
@@ -152,12 +148,10 @@ async def test_http_404_code() -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(
             CONFIG_URL,
-            exception=ClientResponseError(
-                Mock(), Mock(), status=HTTPStatus.NOT_FOUND.value
-            ),
+            status=HTTPStatus.NOT_FOUND.value,
         )
         with pytest.raises(ApiError) as excinfo:
             await NettigoAirMonitor.create(session, options)
@@ -173,12 +167,12 @@ async def test_api_error() -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(DATA_JSON_URL, status=HTTPStatus.ACCEPTED.value)
         with pytest.raises(ApiError) as excinfo:
             await nam.async_update()
@@ -197,12 +191,12 @@ async def test_invalid_sensor_data() -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(DATA_JSON_URL, payload=data)
 
         with pytest.raises(InvalidSensorDataError) as excinfo:
@@ -219,7 +213,7 @@ async def test_cannot_get_mac() -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload="lorem ipsum")
 
         with pytest.raises(CannotGetMacError) as excinfo:
@@ -236,8 +230,8 @@ async def test_init_device_not_repond() -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, exception=TimeoutError(Mock(), Mock()))
+    async with aiointercept(mock_external_urls=True) as session_mock:
+        session_mock.get(CONFIG_URL, exception=True)
 
         with pytest.raises(ApiError) as excinfo:
             await NettigoAirMonitor.create(session, options)
@@ -253,8 +247,8 @@ async def test_get_mac_device_not_repond() -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock:
-        session_mock.get(CONFIG_URL, exception=TimeoutError(Mock(), Mock()))
+    async with aiointercept(mock_external_urls=True) as session_mock:
+        session_mock.get(CONFIG_URL, exception=True)
 
         with pytest.raises(ApiError) as excinfo:
             await NettigoAirMonitor.create(session, options)
@@ -284,21 +278,19 @@ async def test_post_methods(method: str, endpoint: str) -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with (
-        aioresponses() as session_mock,
-        patch(
+    async with aiointercept(mock_external_urls=True) as session_mock:
+        with patch(
             "nettigo_air_monitor.NettigoAirMonitor._async_http_request"
-        ) as mock_request,
-    ):
-        session_mock.post(f"http://192.168.172.12/{endpoint}")
+        ) as mock_request:
+            session_mock.post(f"http://192.168.172.12/{endpoint}")
 
-        method_to_call = getattr(nam, method)
-        await method_to_call()
+            method_to_call = getattr(nam, method)
+            await method_to_call()
 
     await session.close()
 
@@ -316,15 +308,13 @@ async def test_post_methods_fail(method: str, endpoint: str) -> None:
     session = ClientSession()
     options = ConnectionOptions(VALID_IP, "user", "pass")
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
 
         nam = await NettigoAirMonitor.create(session, options)
 
-    with aioresponses() as session_mock:
-        session_mock.post(
-            f"http://192.168.172.12/{endpoint}", exception=TimeoutError(Mock(), Mock())
-        )
+    async with aiointercept(mock_external_urls=True) as session_mock:
+        session_mock.post(f"http://192.168.172.12/{endpoint}", exception=True)
 
         method_to_call = getattr(nam, method)
         with pytest.raises(ApiError) as excinfo:
@@ -335,22 +325,20 @@ async def test_post_methods_fail(method: str, endpoint: str) -> None:
     await session.close()
 
 
-@pytest.mark.parametrize(
-    "exc", [TimeoutError(Mock(), Mock()), ClientConnectorError(Mock(), Mock())]
-)
 @pytest.mark.asyncio
-async def test_retry_success(valid_data: dict[str, Any], exc: Exception) -> None:
+async def test_retry_success(valid_data: dict[str, Any]) -> None:
     """Test retry which succeeded."""
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock, patch("asyncio.sleep") as sleep_mock:
-        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
-        session_mock.get(DATA_JSON_URL, exception=exc, repeat=4)
-        session_mock.get(DATA_JSON_URL, payload=valid_data)
+    async with aiointercept(mock_external_urls=True) as session_mock:
+        with patch("asyncio.sleep") as sleep_mock:
+            session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
+            session_mock.get(DATA_JSON_URL, exception=True, repeat=4)
+            session_mock.get(DATA_JSON_URL, payload=valid_data)
 
-        nam = await NettigoAirMonitor.create(session, options)
-        await nam.async_update()
+            nam = await NettigoAirMonitor.create(session, options)
+            await nam.async_update()
 
     assert sleep_mock.call_count == 4
     assert sleep_mock.call_args_list[0][0][0] == 5
@@ -361,22 +349,20 @@ async def test_retry_success(valid_data: dict[str, Any], exc: Exception) -> None
     await session.close()
 
 
-@pytest.mark.parametrize(
-    "exc", [TimeoutError(Mock(), Mock()), ClientConnectorError(Mock(), Mock())]
-)
 @pytest.mark.asyncio
-async def test_retry_fail(exc: Exception) -> None:
+async def test_retry_fail() -> None:
     """Test retry that failed."""
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock, patch("asyncio.sleep") as sleep_mock:
-        session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
-        session_mock.get(DATA_JSON_URL, exception=exc, repeat=5)
+    async with aiointercept(mock_external_urls=True) as session_mock:
+        with patch("asyncio.sleep") as sleep_mock:
+            session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
+            session_mock.get(DATA_JSON_URL, exception=True, repeat=5)
 
-        nam = await NettigoAirMonitor.create(session, options)
-        with pytest.raises(RetryError) as excinfo:
-            await nam.async_update()
+            nam = await NettigoAirMonitor.create(session, options)
+            with pytest.raises(RetryError) as excinfo:
+                await nam.async_update()
 
     await session.close()
 
@@ -403,7 +389,7 @@ async def test_illuminance_wrong_value() -> None:
         "sensordatavalues": [{"value_type": "ambient_light", "value": "-1"}],
     }
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_NETTIGO)
         session_mock.get(DATA_JSON_URL, payload=data)
 
@@ -423,7 +409,7 @@ async def test_sensor_community_firmware(
     session = ClientSession()
     options = ConnectionOptions(VALID_IP)
 
-    with aioresponses() as session_mock:
+    async with aiointercept(mock_external_urls=True) as session_mock:
         session_mock.get(CONFIG_URL, payload=CONFIG_HEADER_SENSOR_COMMUNITY)
         session_mock.get(DATA_JSON_URL, payload=sensor_community_data)
 

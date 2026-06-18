@@ -8,7 +8,7 @@ from http import HTTPStatus
 from typing import Any
 
 from aiohttp import (
-    ClientConnectorError,
+    ClientConnectionError,
     ClientResponse,
     ClientResponseError,
     ClientSession,
@@ -124,7 +124,7 @@ class NettigoAirMonitor:
             raise ApiError(
                 f"Invalid response from device {self.host}: {error.status}"
             ) from error
-        except (TimeoutError, ClientConnectorError) as error:
+        except (TimeoutError, ClientConnectionError) as error:
             _LOGGER.info("Invalid response from device: %s", self.host)
             raise NotRespondingError(
                 f"The device {self.host} is not responding"
