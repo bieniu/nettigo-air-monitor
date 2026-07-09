@@ -43,4 +43,4 @@ def sensor_community_data() -> dict[str, Any]:
 @pytest.fixture(autouse=True)
 def allow_aiointercept_to_mock_ip_hosts(monkeypatch: pytest.MonkeyPatch) -> None:
     """Route IP literal hosts through aiohttp's resolver for aiointercept."""
-    monkeypatch.setattr("aiohttp.connector.is_ip_address", lambda _host: False)
+    monkeypatch.setattr("aiointercept.core.is_ip_address", lambda _host: False)
