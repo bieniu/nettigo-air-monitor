@@ -18,6 +18,7 @@ Python wrapper for getting air quality data from Nettigo Air Monitor devices.
 
 ```python
 """An example of using Nettigo Air Monitor package."""
+
 import asyncio
 import logging
 
@@ -68,7 +69,6 @@ async def main() -> None:
 loop = asyncio.new_event_loop()
 loop.run_until_complete(main())
 loop.close()
-
 ```
 
 ## Contributing
