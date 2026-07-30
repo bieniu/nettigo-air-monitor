@@ -39,12 +39,12 @@ options: ConnectionOptions
 nam = await NettigoAirMonitor.create(session, options)
 
 # Properties (available after create())
-nam.host             # str
-nam.mac              # str  (e.g. "aa:bb:cc:dd:ee:ff")
-nam.software_version # str | None
-nam.latitude         # float | None  (from GPS sensor, set on first update)
-nam.longitude        # float | None
-nam.altitude         # float | None
+nam.host  # str
+nam.mac  # str  (e.g. "aa:bb:cc:dd:ee:ff")
+nam.software_version  # str | None
+nam.latitude  # float | None  (from GPS sensor, set on first update)
+nam.longitude  # float | None
+nam.altitude  # float | None
 
 # Async methods
 sensors: NAMSensors = await nam.async_update()
@@ -59,7 +59,7 @@ mac: str = await nam.async_get_mac_address()
 @dataclass
 class ConnectionOptions:
     host: str
-    username: str | None = None   # requires password to also be set
+    username: str | None = None  # requires password to also be set
     password: str | None = None
     auth: aiohttp.BasicAuth | None = None  # auto-set by __post_init__
 ```
