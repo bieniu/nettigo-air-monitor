@@ -109,13 +109,17 @@ class NettigoAirMonitor:
 
     async def _async_http_request(self, method: str, url: str) -> ClientResponse:
         """Retrieve data from the device."""
+        headers = None
+        if auth_header := self._options.auth_header:
+            headers = {"Authorization": auth_header}
+
         try:
             _LOGGER.debug("Requesting %s, method: %s", url, method)
             resp = await self._session.request(
                 method,
                 url,
                 raise_for_status=True,
-                auth=self._options.auth,
+                headers=headers,
                 timeout=DEFAULT_TIMEOUT,
             )
         except ClientResponseError as error:

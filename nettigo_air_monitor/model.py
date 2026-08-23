@@ -12,7 +12,7 @@ class ConnectionOptions:
     host: str
     username: str | None = None
     password: str | None = None
-    auth: aiohttp.BasicAuth | None = None
+    auth_header: str | None = None
 
     def __post_init__(self) -> None:
         """Call after initialization."""
@@ -21,7 +21,9 @@ class ConnectionOptions:
                 raise ValueError("Supply both username and password")
 
             object.__setattr__(
-                self, "auth", aiohttp.BasicAuth(self.username, self.password)
+                self,
+                "auth_header",
+                aiohttp.encode_basic_auth(self.username, self.password),
             )
 
 
