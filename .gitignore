@@ -130,3 +130,6 @@ dmypy.json
 
 # VSCode
 .vscode/settings.json
+
+# omc
+.omc/
