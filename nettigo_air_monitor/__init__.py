@@ -1,7 +1,5 @@
 """Python wrapper for getting air quality data from Nettigo Air Monitor devices."""
 
-from __future__ import annotations
-
 import logging
 import re
 from http import HTTPStatus

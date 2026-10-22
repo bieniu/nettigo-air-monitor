@@ -2,13 +2,12 @@
 
 import json
 from http import HTTPStatus
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 import pytest
 from aiohttp import ClientSession
 from aiointercept import aiointercept
-from syrupy import SnapshotAssertion
 from tenacity import RetryError
 
 from nettigo_air_monitor import (
@@ -19,6 +18,9 @@ from nettigo_air_monitor import (
     InvalidSensorDataError,
     NettigoAirMonitor,
 )
+
+if TYPE_CHECKING:
+    from syrupy import SnapshotAssertion
 
 VALID_IP = "192.168.172.12"
 INVALID_HOST = "http://nam.org"
