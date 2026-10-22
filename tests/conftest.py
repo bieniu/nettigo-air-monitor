@@ -2,12 +2,14 @@
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
-from syrupy.assertion import SnapshotAssertion
 from syrupy.extensions.amber import AmberSnapshotExtension
-from syrupy.location import PyTestLocation
+
+if TYPE_CHECKING:
+    from syrupy.assertion import SnapshotAssertion
+    from syrupy.location import PyTestLocation
 
 
 @pytest.fixture
