@@ -1,17 +1,18 @@
 version: 2
 enable-beta-ecosystems: true
 
+# Keep tools pinned in both pyproject.toml and .pre-commit-config.yaml in sync
+multi-ecosystem-groups:
+  dev:
+    schedule:
+      interval: "weekly"
+
 updates:
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "weekly"
     groups:
-      dev:
-        patterns:
-          - "prek"
-          - "ruff"
-          - "ty"
       test:
         patterns:
           - "aiointercept"
@@ -39,3 +40,21 @@ updates:
     groups:
       pre-commit:
         patterns: ["*"]
+        exclude-patterns:
+          - "*/astral-sh/ruff-pre-commit"
+          - "*/astral-sh/ty-pre-commit"
+
+  - package-ecosystem: "uv"
+    directory: "/"
+    patterns:
+      - "prek"
+      - "ruff"
+      - "ty"
+    multi-ecosystem-group: "dev"
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    patterns:
+      - "*/astral-sh/ruff-pre-commit"
+      - "*/astral-sh/ty-pre-commit"
+    multi-ecosystem-group: "dev"
